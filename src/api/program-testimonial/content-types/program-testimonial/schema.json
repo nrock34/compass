@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programtestimonial",
+  "info": {
+    "singularName": "program-testimonial",
+    "pluralName": "program-testimonials",
+    "displayName": "Program testimonial"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "name": { "type": "string", "required": true, "maxLength": 40 },
+    "time_period": { "type": "string", "required": true, "maxLength": 20 },
+    "rating": { "type": "integer", "required": true },
+    "text": { "type": "text", "required": true, "maxLength": 250 },
+    "program": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "testimonials",
+      "required": true
+    }
+  }
+}

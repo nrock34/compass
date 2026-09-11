@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_universitysocialmedialinks",
+  "info": {
+    "singularName": "university-social-media-link",
+    "pluralName": "university-social-media-links",
+    "displayName": "University social media links"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "facebook": { "type": "json", "required": true, "default": [] },
+    "instagram": { "type": "json", "required": true, "default": [] },
+    "linkedin": { "type": "json", "required": true, "default": [] },
+    "twitter": { "type": "json", "required": true, "default": [] },
+    "youtube": { "type": "json", "required": true, "default": [] },
+    "other": { "type": "json", "required": true, "default": [] },
+    "university": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::university.university",
+      "mappedBy": "social_media_links",
+      "visible": false
+    }
+  }
+}

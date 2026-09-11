@@ -1,0 +1,16 @@
+import type { Core } from '@strapi/strapi';
+export type MetadataAttribute = { type: string; columnName?: string; relation?: string; owner?: boolean; target?: string; joinColumn?: { name?: string }; morphColumn?: { typeColumn?: { name?: string }; idColumn?: { name?: string } } };
+export type MetadataModel = { uid: string; tableName: string; attributes: Record<string, MetadataAttribute> };
+type Store = { get(uid: string): MetadataModel | undefined; entries(): IterableIterator<[string, MetadataModel]> };
+const valid = (value: unknown): value is string => typeof value === 'string' && /^[A-Za-z_][A-Za-z0-9_$]*$/.test(value);
+export function createMetadataResolver(strapi: Core.Strapi, reportIssue: (message: string) => void) {
+  const store = (strapi.db as unknown as { metadata: Store }).metadata;
+  const model = (uid: string) => { const item = store.get(uid); if (!item) reportIssue(`${uid}: Strapi metadata was not registered`); return item; };
+  const table = (uid: string) => { const item = model(uid); if (!item || !valid(item.tableName)) { if (item) reportIssue(`${uid}: invalid table identifier`); return undefined; } return item.tableName; };
+  const column = (uid: string, field: string) => { const item = model(uid); const attribute = item?.attributes[field]; if (!attribute) { reportIssue(`${uid}.${field}: attribute is not present`); return undefined; } const name = attribute.type === 'relation' ? (attribute.owner ? attribute.joinColumn?.name : undefined) : attribute.columnName ?? field; if (!valid(name)) { reportIssue(`${uid}.${field}: relation has no owning direct FK column (useJoinTable:false is required)`); return undefined; } return name; };
+  const columns = (uid: string, fields: readonly string[]) => { const result: Record<string, string> = {}; for (const field of fields) { const name = column(uid, field); if (!name) return undefined; result[field] = name; } return result; };
+  const idColumn = (uid: string) => { const item = model(uid); const name = item?.attributes.id?.columnName ?? 'id'; return valid(name) ? name : undefined; };
+  const morphToOneColumns = (uid: string, field: string) => { const item = model(uid); const attribute = item?.attributes[field]; if (attribute?.type !== 'relation' || attribute.relation !== 'morphToOne' || !attribute.owner) { reportIssue(`${uid}.${field}: attribute is not an owning morphToOne relation`); return undefined; } const type = attribute.morphColumn?.typeColumn?.name; const id = attribute.morphColumn?.idColumn?.name; if (!valid(type) || !valid(id)) { reportIssue(`${uid}.${field}: morph relation has no type/id columns`); return undefined; } return { type, id }; };
+  const owningRelation = (uid: string, field: string, target: string) => { const item = model(uid); const attribute = item?.attributes[field]; const columnName = attribute?.owner ? attribute.joinColumn?.name : undefined; if (!attribute || attribute.type !== 'relation' || attribute.target !== target || !valid(columnName)) { reportIssue(`${uid}.${field}: relation is not an owning direct FK to ${target}`); return undefined; } const child = table(uid); const parent = table(target); return child && parent ? { childTable: child, parentTable: parent, childColumn: columnName } : undefined; };
+  return { entries: () => store.entries(), model, table, column, columns, idColumn, morphToOneColumns, owningRelation };
+}

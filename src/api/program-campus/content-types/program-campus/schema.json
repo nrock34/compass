@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programcampus",
+  "info": {
+    "singularName": "program-campus",
+    "pluralName": "program-campuses",
+    "displayName": "Program campus"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "program": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "campuses"
+    },
+    "name": { "type": "string", "required": true, "maxLength": 64 },
+    "accreditation": { "type": "string", "required": true, "maxLength": 64 },
+    "has_accommodation": { "type": "boolean", "required": true, "default": false }
+  }
+}

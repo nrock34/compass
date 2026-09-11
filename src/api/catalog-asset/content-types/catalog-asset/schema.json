@@ -1,0 +1,53 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_catalogasset",
+  "info": {
+    "singularName": "catalog-asset",
+    "pluralName": "catalog-assets",
+    "displayName": "Catalog Asset"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": { "type": "string", "required": true, "maxLength": 255 },
+    "file": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "alt_text": { "type": "string", "required": true, "maxLength": 255 },
+    "caption": { "type": "text" },
+    "rights": { "type": "string", "maxLength": 255 },
+    "source_url": { "type": "string", "maxLength": 2048 },
+    "program_images": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::program.program",
+      "mappedBy": "image",
+      "visible": false
+    },
+    "program_galleries": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::program.program",
+      "mappedBy": "gallery",
+      "visible": false
+    },
+    "scholarship_images": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::scholarship.scholarship",
+      "mappedBy": "image",
+      "visible": false
+    },
+    "scholarship_galleries": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::scholarship.scholarship",
+      "mappedBy": "gallery",
+      "visible": false
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_resourcetag",
+  "info": {
+    "singularName": "resource-tag",
+    "pluralName": "resource-tags",
+    "displayName": "Resource Tag"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": { "type": "string", "required": true, "maxLength": 32 },
+    "resource": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::resource.resource",
+      "mappedBy": "tags",
+      "visible": false
+    }
+  }
+}

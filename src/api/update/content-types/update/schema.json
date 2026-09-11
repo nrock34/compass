@@ -1,0 +1,69 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_update",
+  "info": {
+    "singularName": "update",
+    "pluralName": "updates",
+    "displayName": "Update"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": { "type": "string", "required": true, "maxLength": 255 },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::update-category.update-category",
+      "inversedBy": "updates"
+    },
+    "image": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::editorial-asset.editorial-asset",
+      "inversedBy": "updates",
+      "required": true
+    },
+    "urgent": { "type": "boolean", "required": true },
+    "urgency": { "type": "string", "maxLength": 10 },
+    "color": { "type": "string", "maxLength": 10 },
+    "summary": { "type": "text", "required": true, "maxLength": 300 },
+    "content": {"type": "richtext"},
+    "comment_count": {"type": "integer", "required": true, "default": 0, "min": 0, "visible": false},
+    "like_count": {"type": "integer", "required": true, "default": 0, "min": 0, "visible": false},
+    "views": {"type": "integer", "required": true, "default": 0, "min": 0, "visible": false},
+    "shares": {"type": "integer", "required": true, "default": 0, "min": 0, "visible": false},
+    "expires_at": { "type": "datetime" },
+    "is_active": {"type": "boolean", "required": true, "default": true, "visible": false},
+    "publication_status": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "review",
+        "scheduled",
+        "published",
+        "archived"
+      ],
+      "default": "draft",
+      "required": true,
+      "visible": false
+    },
+    "reviewed_at": {"type": "datetime", "visible": false},
+    "scheduled_at": {"type": "datetime", "visible": false},
+    "archived_at": {"type": "datetime", "visible": false},
+    "comments": {
+      "type": "relation",
+      "relation": "morphMany",
+      "target": "api::comment.comment",
+      "morphBy": "subject"
+    },
+    "likes": {
+      "type": "relation",
+      "relation": "morphMany",
+      "target": "api::like.like",
+      "morphBy": "subject"
+    }
+  }
+}

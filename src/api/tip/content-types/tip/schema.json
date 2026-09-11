@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_tip",
+  "info": {
+    "singularName": "tip",
+    "pluralName": "tips",
+    "displayName": "Tip"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": { "type": "string", "required": true, "maxLength": 80 },
+    "description": { "type": "text", "required": true, "maxLength": 455 },
+    "rating": { "type": "integer", "required": true, "default": 0, "min": 0, "max": 100 },
+    "views": {"type": "integer", "required": true, "default": 0, "min": 0, "visible": false},
+    "author": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::author.author"
+    },
+    "featured": { "type": "boolean", "required": true, "default": false },
+    "publication_status": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "review",
+        "scheduled",
+        "published",
+        "archived"
+      ],
+      "default": "draft",
+      "required": true,
+      "visible": false
+    },
+    "reviewed_at": {"type": "datetime", "visible": false},
+    "scheduled_at": {"type": "datetime", "visible": false},
+    "archived_at": {"type": "datetime", "visible": false},
+    "thumbnail": { "type": "string", "required": true, "default": "", "maxLength": 200 },
+    "downloads": {"type": "integer", "required": true, "default": 0, "visible": false},
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::resource-tag.resource-tag"
+    },
+    "page_content": {"type": "richtext", "default": ""},
+    "saved_by_users": {
+      "type": "relation",
+      "relation": "morphMany",
+      "target": "api::saved-resource.saved-resource",
+      "morphBy": "resource"
+    }
+  }
+}

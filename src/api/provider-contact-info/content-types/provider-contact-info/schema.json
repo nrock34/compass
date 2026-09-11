@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_providercontactinfo",
+  "info": {
+    "singularName": "provider-contact-info",
+    "pluralName": "provider-contact-infos",
+    "displayName": "Provider contact info"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "email": { "type": "email", "required": true, "default": "example@email.com", "maxLength": 254 },
+    "country_code": { "type": "string", "maxLength": 4 },
+    "phone": { "type": "string", "maxLength": 17 },
+    "address": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "api::provider-address.provider-address",
+      "inversedBy": "provider_contact",
+      "required": true
+    },
+    "website": { "type": "string", "required": true, "maxLength": 200 },
+    "provider": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::provider.provider",
+      "mappedBy": "contact",
+      "visible": false
+    }
+  }
+}

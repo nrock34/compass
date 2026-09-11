@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_userbadge",
+  "info": {
+    "singularName": "user-badge",
+    "pluralName": "user-badges",
+    "displayName": "User badge"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user_profile": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::user-profile-info.user-profile-info",
+      "inversedBy": "userbadge_set",
+      "required": true
+    },
+    "badge": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::badge.badge",
+      "inversedBy": "userbadge_set",
+      "required": true
+    },
+    "awarded_at": {"type": "datetime", "required": true, "visible": false},
+    "reason": {
+      "type": "enumeration",
+      "enum": ["assigned", "earned"],
+      "required": true
+    }
+  }
+}

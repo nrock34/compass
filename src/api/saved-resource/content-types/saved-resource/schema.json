@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_savedresource",
+  "info": {
+    "singularName": "saved-resource",
+    "pluralName": "saved-resources",
+    "displayName": "Saved resource"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "content-manager": { "visible": false }
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "saved_resources",
+      "required": true
+    },
+    "resource": {
+      "type": "relation",
+      "relation": "morphToOne",
+      "required": true
+    },
+    "position": { "type": "integer", "required": true, "default": 0, "min": 0 },
+    "saved_at": {"type": "datetime", "required": true, "visible": false}
+  }
+}

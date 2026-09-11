@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programfield",
+  "info": {
+    "singularName": "program-field",
+    "pluralName": "program-fields",
+    "displayName": "Program field"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": { "type": "string", "required": true, "unique": true, "maxLength": 40 },
+    "programs": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::program.program",
+      "mappedBy": "fields",
+      "visible": false
+    }
+  }
+}

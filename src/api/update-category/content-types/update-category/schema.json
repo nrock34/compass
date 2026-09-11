@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_updatecategory",
+  "info": {
+    "singularName": "update-category",
+    "pluralName": "update-categories",
+    "displayName": "Update Category"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": { "type": "string", "required": true, "maxLength": 50 },
+    "updates": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::update.update",
+      "mappedBy": "category",
+      "visible": false
+    }
+  }
+}

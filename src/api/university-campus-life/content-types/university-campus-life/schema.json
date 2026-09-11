@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_universitycampuslife",
+  "info": {
+    "singularName": "university-campus-life",
+    "pluralName": "university-campus-lives",
+    "displayName": "University campus life"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "school_size": {"type": "string", "default": "", "maxLength": 32},
+    "school_type_designation": {"type": "string", "default": "", "maxLength": 40},
+    "school_type_years": { "type": "integer", "min": 0, "max": 32767 },
+    "university": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::university.university",
+      "mappedBy": "campus_life",
+      "visible": false
+    }
+  }
+}

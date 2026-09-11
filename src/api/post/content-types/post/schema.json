@@ -1,0 +1,78 @@
+{
+  "kind": "collectionType",
+  "collectionName": "community_post",
+  "info": {
+    "singularName": "post",
+    "pluralName": "posts",
+    "displayName": "Post"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": ["discussion", "announcement", "photo", "question"],
+      "default": "discussion",
+      "required": true
+    },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::post-category.post-category",
+      "inversedBy": "posts"
+    },
+    "title": { "type": "string", "required": true, "maxLength": 200 },
+    "author": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::author.author",
+      "inversedBy": "post_set"
+    },
+    "content": { "type": "text", "required": true, "default": "", "maxLength": 600 },
+    "media": { "type": "string", "maxLength": 200 },
+    "media_caption": { "type": "string", "maxLength": 255 },
+    "is_media_video": { "type": "boolean", "required": true, "default": false },
+    "published": {"type": "boolean", "required": true, "default": false, "visible": false},
+    "publication_status": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "review",
+        "scheduled",
+        "published",
+        "archived"
+      ],
+      "default": "draft",
+      "required": true,
+      "visible": false
+    },
+    "reviewed_at": {"type": "datetime", "visible": false},
+    "scheduled_at": {"type": "datetime", "visible": false},
+    "archived_at": {"type": "datetime", "visible": false},
+    "views": {"type": "integer", "required": true, "default": 0, "min": 0, "visible": false},
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::post-tag.post-tag",
+      "inversedBy": "posts",
+      "required": true
+    },
+    "like_count": {"type": "integer", "required": true, "default": 0, "min": 0, "visible": false},
+    "comment_count": {"type": "integer", "required": true, "default": 0, "min": 0, "visible": false},
+    "comments": {
+      "type": "relation",
+      "relation": "morphMany",
+      "target": "api::comment.comment",
+      "morphBy": "subject"
+    },
+    "likes": {
+      "type": "relation",
+      "relation": "morphMany",
+      "target": "api::like.like",
+      "morphBy": "subject"
+    }
+  }
+}

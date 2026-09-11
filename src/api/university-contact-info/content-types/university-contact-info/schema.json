@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_universitycontactinfo",
+  "info": {
+    "singularName": "university-contact-info",
+    "pluralName": "university-contact-infos",
+    "displayName": "University contact info"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "phone": {"type": "string", "default": "", "maxLength": 32},
+    "street": {"type": "string", "default": "", "maxLength": 255},
+    "city": {"type": "string", "default": "", "maxLength": 120},
+    "state_code": {"type": "string", "default": "", "maxLength": 16},
+    "country_code": {"type": "string", "default": "", "maxLength": 8},
+    "country_name": {"type": "string", "default": "", "maxLength": 255},
+    "zip_code": {"type": "string", "default": "", "maxLength": 20},
+    "university": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::university.university",
+      "mappedBy": "contact_info",
+      "visible": false
+    }
+  }
+}

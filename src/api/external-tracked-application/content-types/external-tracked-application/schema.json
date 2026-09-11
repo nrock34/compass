@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "journeys_externaltrackedapplication",
+  "info": {
+    "singularName": "external-tracked-application",
+    "pluralName": "external-tracked-applications",
+    "displayName": "External tracked application"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": { "type": "string", "required": true, "maxLength": 255 },
+    "provider": { "type": "string", "required": true, "maxLength": 60 },
+    "deadline": { "type": "date", "required": true },
+    "link": { "type": "string", "required": true, "maxLength": 200 },
+    "user_apps": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tracked-application.tracked-application",
+      "mappedBy": "for_external",
+      "visible": false
+    }
+  }
+}

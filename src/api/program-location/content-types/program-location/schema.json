@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programlocation",
+  "info": {
+    "singularName": "program-location",
+    "pluralName": "program-locations",
+    "displayName": "Program location"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "program": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "locations"
+    },
+    "city": { "type": "string", "required": true, "maxLength": 48 },
+    "state": { "type": "string", "required": true, "maxLength": 48 }
+  }
+}

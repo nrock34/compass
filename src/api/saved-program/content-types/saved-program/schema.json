@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_savedprogram",
+  "info": {
+    "singularName": "saved-program",
+    "pluralName": "saved-programs",
+    "displayName": "Saved program"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "saved_programs",
+      "required": true
+    },
+    "program": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "saved_by_users",
+      "required": true
+    },
+    "position": { "type": "integer", "required": true, "default": 0, "min": 0 },
+    "saved_at": {"type": "datetime", "required": true, "visible": false}
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_program",
+  "info": {
+    "singularName": "program",
+    "pluralName": "programs",
+    "displayName": "Program"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": { "type": "string", "required": true, "unique": true, "maxLength": 100 },
+    "provider": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::provider.provider",
+      "inversedBy": "programs",
+      "required": true
+    },
+    "duration": {
+      "type": "enumeration",
+      "enum": ["sem", "yr", "sum", "brk", "twowks", "sxwks"],
+      "required": true
+    },
+    "application_deadline": { "type": "datetime" },
+    "application_link": { "type": "string", "required": true, "default": "https://romewithme.com", "maxLength": 200 },
+    "info_link": { "type": "string", "maxLength": 200 },
+    "fields": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::program-field.program-field",
+      "inversedBy": "programs",
+      "required": true
+    },
+    "language": { "type": "string", "required": true, "maxLength": 30 },
+    "rating": {
+      "type": "decimal",
+      "required": true,
+      "column": { "type": "decimal", "args": [3, 2] }
+    },
+    "participants": { "type": "integer" },
+    "shortDescription": { "type": "string", "required": true, "default": "", "maxLength": 120 },
+    "description": { "type": "text", "required": true, "default": "", "maxLength": 1600 },
+    "highlights": { "type": "json", "required": true, "default": [] },
+    "image": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::catalog-asset.catalog-asset",
+      "inversedBy": "program_images",
+      "required": true
+    },
+    "gallery": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::catalog-asset.catalog-asset",
+      "inversedBy": "program_galleries"
+    },
+    "featured": { "type": "boolean", "required": true, "default": false },
+    "publication_status": {
+      "type": "enumeration",
+      "enum": ["draft", "in_review", "published"],
+      "required": true,
+      "default": "draft"
+    },
+    "locations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::program-location.program-location",
+      "mappedBy": "program"
+    },
+    "cost": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::program-cost.program-cost",
+      "mappedBy": "program"
+    },
+    "campuses": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::program-campus.program-campus",
+      "mappedBy": "program"
+    },
+    "requirements": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::program-requirement.program-requirement",
+      "mappedBy": "program"
+    },
+    "accomodations": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::program-accomodation.program-accomodation",
+      "mappedBy": "program"
+    },
+    "application_steps": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::program-application-step.program-application-step",
+      "mappedBy": "program"
+    },
+    "testimonials": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::program-testimonial.program-testimonial",
+      "mappedBy": "program"
+    },
+    "academics": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::program-academic.program-academic",
+      "mappedBy": "program"
+    },
+    "provider_links": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::program-provider.program-provider",
+      "mappedBy": "program"
+    },
+    "terms": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::program-term.program-term",
+      "mappedBy": "program"
+    },
+    "user_apps": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tracked-application.tracked-application",
+      "mappedBy": "for_program",
+      "visible": false
+    },
+    "saved_by_users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::saved-program.saved-program",
+      "mappedBy": "program",
+      "visible": false
+    },
+    "users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::user-global-education-info.user-global-education-info",
+      "mappedBy": "current_program",
+      "visible": false
+    }
+  }
+}

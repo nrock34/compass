@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_articlelocation",
+  "info": {
+    "singularName": "article-location",
+    "pluralName": "article-locations",
+    "displayName": "Article Location"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "city": {
+      "type": "string",
+      "required": true,
+      "default": "Split",
+      "maxLength": 60
+    },
+    "country": {
+      "type": "string",
+      "required": true,
+      "default": "Croatia",
+      "maxLength": 60
+    },
+    "article_set": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::article.article",
+      "mappedBy": "location",
+      "visible": false
+    }
+  }
+}

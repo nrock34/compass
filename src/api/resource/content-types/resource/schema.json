@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_resource",
+  "info": {
+    "singularName": "resource",
+    "pluralName": "resources",
+    "displayName": "Resource"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": { "type": "string", "required": true, "maxLength": 80 },
+    "description": { "type": "text", "required": true, "maxLength": 455 },
+    "category": {
+      "type": "enumeration",
+      "enum": ["guides", "tips", "itineraries", "academic", "cultural", "general"],
+      "default": "general",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["pdf", "video", "link", "interactive", "page"],
+      "default": "page",
+      "required": true
+    },
+    "kind": {
+      "type": "enumeration",
+      "enum": ["guides", "tips", "itineraries", "academic", "cultural", "general"],
+      "default": "general",
+      "required": true
+    },
+    "content_format": {
+      "type": "enumeration",
+      "enum": ["pdf", "video", "link", "interactive", "page"],
+      "default": "page",
+      "required": true
+    },
+    "content_url": {"type": "string", "default": "", "maxLength": 200},
+    "body": {"type": "text", "default": ""},
+    "rating": { "type": "integer", "required": true, "default": 0, "min": 0, "max": 100 },
+    "views": {"type": "integer", "required": true, "default": 0, "min": 0, "visible": false},
+    "author": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::author.author",
+      "inversedBy": "resource_set"
+    },
+    "featured": { "type": "boolean", "required": true, "default": false },
+    "publication_status": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "review",
+        "scheduled",
+        "published",
+        "archived"
+      ],
+      "default": "draft",
+      "required": true,
+      "visible": false
+    },
+    "reviewed_at": {"type": "datetime", "visible": false},
+    "scheduled_at": {"type": "datetime", "visible": false},
+    "archived_at": {"type": "datetime", "visible": false},
+    "thumbnail": { "type": "string", "required": true, "default": "", "maxLength": 200 },
+    "downloads": {"type": "integer", "required": true, "default": 0, "visible": false},
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::resource-tag.resource-tag",
+      "inversedBy": "resource"
+    },
+    "saved_by_users": {
+      "type": "relation",
+      "relation": "morphMany",
+      "target": "api::saved-resource.saved-resource",
+      "morphBy": "resource"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+# pnpm-workspace.yaml
+allowBuilds:
+  '@apollo/protobufjs': true
+  '@swc/core': true
+  core-js-pure: true
+  esbuild: true
+  sharp: true
+patchedDependencies:
+  '@strapi-community/plugin-api-permissions@1.0.0-alpha.5': patches/@strapi-community__plugin-api-permissions@1.0.0-alpha.5.patch
+  strapi-cache@1.12.2: patches/strapi-cache@1.12.2.patch

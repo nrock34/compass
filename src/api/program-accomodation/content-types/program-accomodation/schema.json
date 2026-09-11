@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programaccomodations",
+  "info": {
+    "singularName": "program-accomodation",
+    "pluralName": "program-accomodations",
+    "displayName": "Program accomodations"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "location": { "type": "string", "required": true, "maxLength": 80 },
+    "amenities": { "type": "json", "required": true, "default": [] },
+    "description": { "type": "text", "required": true, "maxLength": 300 },
+    "type": { "type": "string", "required": true, "maxLength": 50 },
+    "program": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "accomodations",
+      "required": true
+    }
+  }
+}

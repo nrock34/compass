@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "community_comment",
+  "info": {
+    "singularName": "comment",
+    "pluralName": "comments",
+    "displayName": "Comment"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "content-manager": { "visible": false }
+  },
+  "attributes": {
+    "author": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::author.author",
+      "inversedBy": "comment_set"
+    },
+    "content": { "type": "string", "required": true, "default": "", "maxLength": 500 },
+    "subject": {
+      "type": "relation",
+      "relation": "morphToOne",
+      "required": true
+    }
+  }
+}

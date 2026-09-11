@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_editorialassetplacement",
+  "info": {
+    "singularName": "editorial-asset-placement",
+    "pluralName": "editorial-asset-placements",
+    "displayName": "Editorial Asset Placement"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "content-manager": { "visible": false }
+  },
+  "attributes": {
+    "asset": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::editorial-asset.editorial-asset",
+      "inversedBy": "placements",
+      "required": true
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "morphToOne",
+      "required": true
+    },
+    "role": {
+      "type": "enumeration",
+      "enum": ["hero", "gallery", "body", "thumbnail"],
+      "required": true
+    },
+    "position": { "type": "integer", "required": true, "default": 0, "min": 0 }
+  }
+}

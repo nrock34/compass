@@ -1,0 +1,12 @@
+{
+  "name": "strapi-plugin-catalog-editor",
+  "version": "0.1.0",
+  "private": true,
+  "main": "strapi-server.js",
+  "exports": {
+    "./strapi-admin": { "source": "./strapi-admin.ts", "import": "./strapi-admin.ts", "default": "./strapi-admin.ts" },
+    "./strapi-server": { "require": "./strapi-server.js", "default": "./strapi-server.js" },
+    "./package.json": "./package.json"
+  },
+  "strapi": { "name": "catalog-editor", "kind": "plugin" }
+}

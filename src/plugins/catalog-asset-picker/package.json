@@ -1,0 +1,23 @@
+{
+  "name": "strapi-plugin-catalog-asset-picker",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./strapi-admin": {
+      "source": "./strapi-admin.ts",
+      "import": "./strapi-admin.ts",
+      "default": "./strapi-admin.ts"
+    },
+    "./strapi-server": {
+      "source": "./strapi-server.js",
+      "require": "./strapi-server.js",
+      "default": "./strapi-server.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "strapi": {
+    "name": "catalog-asset-picker",
+    "kind": "plugin"
+  },
+  "main": "strapi-server.js"
+}

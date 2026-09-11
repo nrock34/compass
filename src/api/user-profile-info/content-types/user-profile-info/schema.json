@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_userprofileinfo",
+  "info": {
+    "singularName": "user-profile-info",
+    "pluralName": "user-profile-infos",
+    "displayName": "User profile info"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "owned_profile"
+    },
+    "bio": {"type": "text", "default": ""},
+    "avatar": {"type": "string", "default": "", "maxLength": 200},
+    "visibility": {
+      "type": "enumeration",
+      "enum": ["private", "members", "public"],
+      "default": "private",
+      "required": true
+    },
+    "verified_at": { "type": "datetime" },
+    "is_staff": { "type": "boolean", "required": true, "default": false },
+    "is_contributer": { "type": "boolean", "required": true, "default": false },
+    "is_founder": { "type": "boolean", "required": true, "default": false },
+    "userbadge_set": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::user-badge.user-badge",
+      "mappedBy": "user_profile",
+      "visible": false
+    }
+  }
+}

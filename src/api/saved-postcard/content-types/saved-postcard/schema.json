@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_savedpostcard",
+  "info": {
+    "singularName": "saved-postcard",
+    "pluralName": "saved-postcards",
+    "displayName": "Saved postcard"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "saved_postcards",
+      "required": true
+    },
+    "article": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::article.article",
+      "required": true,
+      "inversedBy": "saved_by_users"
+    },
+    "position": {
+      "type": "integer",
+      "required": true,
+      "default": 0,
+      "min": 0
+    },
+    "saved_at": {
+      "type": "datetime",
+      "required": true,
+      "visible": false
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "kind": "singleType",
+  "collectionName": "siteconfig_siteproperty",
+  "info": {
+    "singularName": "site-property",
+    "pluralName": "site-properties",
+    "displayName": "Site Property"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "key": { "type": "string", "required": true, "unique": true, "maxLength": 120 },
+    "namespace": { "type": "string", "required": true, "default": "general", "maxLength": 80 },
+    "description": {"type": "text", "default": ""},
+    "value": { "type": "text", "required": true },
+    "type": {
+      "type": "enumeration",
+      "enum": ["string", "bool", "image", "json"],
+      "default": "string",
+      "required": true
+    },
+    "is_public": { "type": "boolean", "required": true, "default": false },
+    "json_schema": { "type": "json", "required": true, "default": {} }
+  }
+}

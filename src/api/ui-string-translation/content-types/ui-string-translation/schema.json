@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "siteconfig_uistringtranslation",
+  "info": {
+    "singularName": "ui-string-translation",
+    "pluralName": "ui-string-translations",
+    "displayName": "UIString Translation"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "ui_string": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::ui-string.ui-string",
+      "inversedBy": "translations",
+      "required": true
+    },
+    "language": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::lang.lang",
+      "inversedBy": "uistringtranslation_set",
+      "required": true
+    },
+    "value": { "type": "string", "required": true, "maxLength": 1000 }
+  }
+}

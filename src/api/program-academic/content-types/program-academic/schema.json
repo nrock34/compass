@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programacademics",
+  "info": {
+    "singularName": "program-academic",
+    "pluralName": "program-academics",
+    "displayName": "Program academics"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "courses": { "type": "json", "required": true, "default": [] },
+    "trips": { "type": "json", "required": true, "default": [] },
+    "class_size": { "type": "string", "required": true, "maxLength": 50 },
+    "program": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "academics",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_article",
+  "info": {
+    "singularName": "article",
+    "pluralName": "articles",
+    "displayName": "Article"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "maxLength": 80,
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "excerpt": {
+      "type": "string",
+      "maxLength": 450,
+      "required": true
+    },
+    "location": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::article-location.article-location",
+      "required": true,
+      "useJoinTable": false,
+      "inversedBy": "article_set"
+    },
+    "region": {
+      "type": "string",
+      "default": "Europe",
+      "maxLength": 20,
+      "required": true
+    },
+    "author": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::author.author",
+      "useJoinTable": false,
+      "inversedBy": "article_set"
+    },
+    "featured": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
+    "gallery": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::editorial-asset.editorial-asset",
+      "inversedBy": "articles",
+      "visible": false
+    },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::article-category.article-category",
+      "useJoinTable": false,
+      "inversedBy": "articles"
+    },
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::article-tag.article-tag",
+      "required": true,
+      "inversedBy": "articles"
+    },
+    "content": {
+      "type": "customField",
+      "customField": "plugin::postcard-editor.postcard-document",
+      "required": true
+    },
+    "banner_img": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::editorial-asset.editorial-asset",
+      "inversedBy": "banner_articles"
+    },
+    "like_count": {
+      "type": "integer",
+      "required": true,
+      "default": 0,
+      "min": 0,
+      "visible": false
+    },
+    "comment_count": {
+      "type": "integer",
+      "required": true,
+      "default": 0,
+      "min": 0,
+      "visible": false
+    },
+    "views": {
+      "type": "integer",
+      "required": true,
+      "default": 0,
+      "visible": false
+    },
+    "date_published": {
+      "type": "datetime",
+      "visible": false
+    },
+    "published": {
+      "type": "boolean",
+      "required": true,
+      "default": false,
+      "visible": false
+    },
+    "publication_status": {
+      "type": "enumeration",
+      "required": true,
+      "default": "draft",
+      "enum": [
+        "draft",
+        "review",
+        "scheduled",
+        "published",
+        "archived"
+      ],
+      "visible": false
+    },
+    "reviewed_at": {
+      "type": "datetime",
+      "visible": false
+    },
+    "scheduled_at": {
+      "type": "datetime",
+      "visible": false
+    },
+    "archived_at": {
+      "type": "datetime",
+      "visible": false
+    },
+    "comments": {
+      "type": "relation",
+      "relation": "morphMany",
+      "target": "api::comment.comment",
+      "morphBy": "subject"
+    },
+    "likes": {
+      "type": "relation",
+      "relation": "morphMany",
+      "target": "api::like.like",
+      "morphBy": "subject"
+    },
+    "saved_by_users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::saved-postcard.saved-postcard",
+      "mappedBy": "article",
+      "visible": false
+    }
+  }
+}

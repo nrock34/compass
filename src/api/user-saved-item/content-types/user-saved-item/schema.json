@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_usersaveditems",
+  "info": {
+    "singularName": "user-saved-item",
+    "pluralName": "user-saved-items",
+    "displayName": "User saved items"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "programs": { "type": "json", "required": true, "default": [] },
+    "scholarships": { "type": "json", "required": true, "default": [] },
+    "postcards": { "type": "json", "required": true, "default": [] },
+    "resources": { "type": "json", "required": true, "default": [] },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "saved_items"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_globalbackground",
+  "info": {
+    "singularName": "global-background",
+    "pluralName": "global-backgrounds",
+    "displayName": "Global background"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "owned_global_background"
+    },
+    "travel_experience": {"type": "string", "default": "", "maxLength": 32},
+    "has_traveled_edu": { "type": "boolean", "required": true, "default": false },
+    "other_language_spoken": {"type": "string", "default": "", "maxLength": 255},
+    "interested_regions": { "type": "json", "required": true, "default": [] },
+    "completed_steps": { "type": "json", "required": true, "default": [] }
+  }
+}

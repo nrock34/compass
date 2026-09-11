@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "community_postcategory",
+  "info": {
+    "singularName": "post-category",
+    "pluralName": "post-categories",
+    "displayName": "Post category"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "enumeration",
+      "enum": ["opp", "social", "academic", "housing", "events"],
+      "required": true,
+      "unique": true,
+      "default": "social"
+    },
+    "posts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::post.post",
+      "mappedBy": "category",
+      "visible": false
+    }
+  }
+}

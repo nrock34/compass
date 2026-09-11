@@ -1,0 +1,32 @@
+{
+  "kind": "singleType",
+  "collectionName": "editorial_toppickarticle",
+  "info": {
+    "singularName": "top-pick-article",
+    "pluralName": "top-pick-articles",
+    "displayName": "Recommended Article"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "article": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::article.article"
+    },
+    "slot_key": {
+      "type": "string",
+      "default": "postcards.top_pick",
+      "maxLength": 64,
+      "required": true
+    },
+    "starts_at": {
+      "type": "datetime"
+    },
+    "ends_at": {
+      "type": "datetime"
+    }
+  }
+}

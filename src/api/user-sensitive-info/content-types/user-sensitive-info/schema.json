@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_usersensitiveinfo",
+  "info": {
+    "singularName": "user-sensitive-info",
+    "pluralName": "user-sensitive-infos",
+    "displayName": "User sensitive info"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "owned_sensitive_info"
+    },
+    "dob": { "type": "date" },
+    "country_code": { "type": "string", "maxLength": 4 },
+    "phone_number": {"type": "string", "default": "", "maxLength": 15},
+    "phone_e164": {"type": "string", "default": "", "maxLength": 16},
+    "phone_verified_at": { "type": "datetime" },
+    "terms_accepted_at": { "type": "datetime" },
+    "privacy_policy_accepted_at": { "type": "datetime" },
+    "marketing_consent_at": { "type": "datetime" },
+    "location_info": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "api::address-info.address-info",
+      "inversedBy": "user"
+    }
+  }
+}

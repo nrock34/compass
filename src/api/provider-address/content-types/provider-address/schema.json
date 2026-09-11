@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_provideraddress",
+  "info": {
+    "singularName": "provider-address",
+    "pluralName": "provider-addresses",
+    "displayName": "Provider address"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "line_one": { "type": "string", "required": true, "maxLength": 124 },
+    "line_two": {"type": "string", "maxLength": 124, "default": ""},
+    "city": { "type": "string", "required": true, "maxLength": 40 },
+    "state": { "type": "string", "required": true, "maxLength": 30 },
+    "zip_code": { "type": "string", "required": true, "maxLength": 10 },
+    "country": { "type": "string", "required": true, "maxLength": 30 },
+    "provider_contact": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::provider-contact-info.provider-contact-info",
+      "mappedBy": "address",
+      "visible": false
+    }
+  }
+}

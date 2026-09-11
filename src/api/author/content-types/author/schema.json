@@ -1,0 +1,87 @@
+{
+  "kind": "collectionType",
+  "collectionName": "community_author",
+  "info": {
+    "singularName": "author",
+    "pluralName": "authors",
+    "displayName": "Author"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36,
+      "visible": false
+    },
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "avatar": {
+      "type": "string",
+      "default": "",
+      "maxLength": 200
+    },
+    "identity_type": {
+      "type": "enumeration",
+      "enum": [
+        "member",
+        "contributor",
+        "anonymized"
+      ],
+      "default": "member",
+      "required": true
+    },
+    "associated_user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "public_author"
+    },
+    "anonymized_at": {
+      "type": "datetime"
+    },
+    "post_set": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::post.post",
+      "mappedBy": "author",
+      "visible": false
+    },
+    "comment_set": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::comment.comment",
+      "mappedBy": "author",
+      "visible": false
+    },
+    "likes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::like.like",
+      "mappedBy": "author",
+      "visible": false
+    },
+    "article_set": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::article.article",
+      "mappedBy": "author",
+      "visible": false
+    },
+    "resource_set": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::resource.resource",
+      "mappedBy": "author",
+      "visible": false
+    }
+  }
+}

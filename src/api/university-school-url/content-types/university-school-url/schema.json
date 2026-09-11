@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_universityschoolurls",
+  "info": {
+    "singularName": "university-school-url",
+    "pluralName": "university-school-urls",
+    "displayName": "University school URLs"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "website_url": {"type": "string", "default": "", "maxLength": 200},
+    "application_site_url": {"type": "string", "default": "", "maxLength": 200},
+    "common_application_url": {"type": "string", "default": "", "maxLength": 200},
+    "net_price_calculator_url": {"type": "string", "default": "", "maxLength": 200},
+    "virtual_tour_video_url": {"type": "string", "default": "", "maxLength": 200},
+    "university": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::university.university",
+      "mappedBy": "school_urls",
+      "visible": false
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "name": "rwm-strapi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RWM Strapi 5 content and application backend",
+  "scripts": {
+    "console": "strapi console",
+    "develop": "pnpm run build:portal && strapi develop",
+    "start": "strapi start",
+    "strapi": "strapi",
+    "build": "pnpm run build:portal && strapi build",
+    "build:portal": "node scripts/build-provider-portal.mjs",
+    "test:catalog-editor": "node --test tests/catalog-editor.test.cjs",
+    "test:catalog-editor:integration": "node --test --test-force-exit tests/catalog-editor.integration.cjs",
+    "migrate:article-content": "node scripts/migrate-article-content.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@strapi-community/plugin-api-permissions": "1.0.0-alpha.5",
+    "@strapi/database": "5.52.2",
+    "@strapi/design-system": "2.2.4",
+    "@strapi/icons": "2.2.4",
+    "@strapi/plugin-color-picker": "^5.52.2",
+    "@strapi/plugin-graphql": "^5.52.2",
+    "@strapi/plugin-users-permissions": "5.52.2",
+    "@strapi/provider-upload-aws-s3": "5.52.2",
+    "@strapi/strapi": "5.52.2",
+    "@strapi/utils": "5.52.2",
+    "pg": "^8.16.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.3",
+    "sharp": "^0.34.4",
+    "strapi-cache": "1.12.2",
+    "styled-components": "^6.1.19"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.17",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "esbuild": "0.28.2",
+    "knex": "3.0.1",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=20.0.0 <=26.x.x",
+    "npm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@11.0.8",
+  "strapi": {
+    "uuid": "a59731e8-3f68-4fde-b793-83c65e82d28c"
+  }
+}

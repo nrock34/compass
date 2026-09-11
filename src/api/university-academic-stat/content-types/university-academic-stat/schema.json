@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_universityacademicstats",
+  "info": {
+    "singularName": "university-academic-stat",
+    "pluralName": "university-academic-stats",
+    "displayName": "University academic stats"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "grad_rate": { "type": "integer", "min": 0, "max": 32767 },
+    "num_of_majors": { "type": "integer", "min": 0, "max": 32767 },
+    "ratio": { "type": "integer", "min": 0, "max": 32767 },
+    "retention": { "type": "integer", "min": 0, "max": 32767 },
+    "university": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::university.university",
+      "mappedBy": "academic_stats",
+      "visible": false
+    }
+  }
+}

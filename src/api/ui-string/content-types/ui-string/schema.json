@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "siteconfig_uistring",
+  "info": {
+    "singularName": "ui-string",
+    "pluralName": "ui-strings",
+    "displayName": "UIString"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "key": { "type": "string", "required": true, "unique": true, "maxLength": 255 },
+    "description": {"type": "text", "default": "", "maxLength": 255},
+    "translations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ui-string-translation.ui-string-translation",
+      "mappedBy": "ui_string"
+    }
+  }
+}

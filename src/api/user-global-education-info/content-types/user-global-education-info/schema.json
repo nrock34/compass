@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_userglobaleducationinfo",
+  "info": {
+    "singularName": "user-global-education-info",
+    "pluralName": "user-global-education-infos",
+    "displayName": "User global education info"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "owned_int_education"
+    },
+    "went_abroad": { "type": "boolean", "required": true, "default": false },
+    "current_program": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "users"
+    }
+  }
+}

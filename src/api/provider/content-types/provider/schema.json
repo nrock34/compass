@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_provider",
+  "info": {
+    "singularName": "provider",
+    "pluralName": "providers",
+    "displayName": "Provider"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": { "type": "string", "required": true, "maxLength": 284 },
+    "university": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::university.university",
+      "inversedBy": "provider_set"
+    },
+    "contact": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "api::provider-contact-info.provider-contact-info",
+      "inversedBy": "provider"
+    },
+    "programs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::program.program",
+      "mappedBy": "provider",
+      "visible": false
+    },
+    "program_links": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::program-provider.program-provider",
+      "mappedBy": "provider",
+      "visible": false
+    },
+    "scholarships": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::scholarship.scholarship",
+      "mappedBy": "provider",
+      "visible": false
+    }
+  }
+}

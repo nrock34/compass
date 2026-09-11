@@ -1,0 +1,9 @@
+node_modules
+.cache
+.tmp
+.strapi
+dist
+build
+.env
+coverage
+public/uploads/*

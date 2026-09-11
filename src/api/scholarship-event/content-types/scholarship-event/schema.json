@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_scholarshipevent",
+  "info": {
+    "singularName": "scholarship-event",
+    "pluralName": "scholarship-events",
+    "displayName": "Scholarship event"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "name": { "type": "string", "required": true, "maxLength": 50 },
+    "date": { "type": "date", "required": true },
+    "scholarship": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::scholarship.scholarship",
+      "inversedBy": "events",
+      "required": true
+    }
+  }
+}

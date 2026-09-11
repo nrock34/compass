@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_universitylocation",
+  "info": {
+    "singularName": "university-location",
+    "pluralName": "university-locations",
+    "displayName": "University location"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "city": {"type": "string", "default": "", "maxLength": 120},
+    "state_code": {"type": "string", "default": "", "maxLength": 16},
+    "state_name": {"type": "string", "default": "", "maxLength": 125},
+    "country_code": {"type": "string", "default": "", "maxLength": 8},
+    "country_name": {"type": "string", "default": "", "maxLength": 255},
+    "zip_code": {"type": "string", "default": "", "maxLength": 20},
+    "school_setting": {"type": "string", "default": "", "maxLength": 80},
+    "university": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::university.university",
+      "mappedBy": "location",
+      "visible": false
+    }
+  }
+}

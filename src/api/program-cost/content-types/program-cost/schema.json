@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programcost",
+  "info": {
+    "singularName": "program-cost",
+    "pluralName": "program-costs",
+    "displayName": "Program cost"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "program": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "cost"
+    },
+    "program_fee": { "type": "integer", "required": true },
+    "accommodation_fee": { "type": "integer", "required": true },
+    "extra_fee": { "type": "integer", "required": true },
+    "total_fee": {"type": "integer", "required": true, "default": 0, "visible": false}
+  }
+}

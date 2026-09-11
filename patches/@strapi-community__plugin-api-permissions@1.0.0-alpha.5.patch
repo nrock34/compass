@@ -1,0 +1,770 @@
+diff --git a/dist/admin/index-CZQFb5_a.mjs b/dist/admin/index-CZQFb5_a.mjs
+index e151ebd8605e0404ce0073038e1284c8bd7b9481..046366e96b26ef3561c97f749ba0ab17443036c3 100644
+--- a/dist/admin/index-CZQFb5_a.mjs
++++ b/dist/admin/index-CZQFb5_a.mjs
+@@ -229,17 +229,14 @@ function apiToFormState(api, layout) {
+         if (!actionData?.enabled) continue;
+         if (typeKey.startsWith("api::")) {
+           const ctUid = `${typeKey}.${controllerName}`;
+-          if (collectionUids.has(ctUid) && form.collectionTypes[ctUid]?.[actionName]) {
+-            form.collectionTypes[ctUid][actionName].properties.enabled = true;
+-          }
+-          if (singleUids.has(ctUid) && form.singleTypes[ctUid]?.[actionName]) {
+-            form.singleTypes[ctUid][actionName].properties.enabled = true;
+-          }
++          const section = singleUids.has(ctUid) ? form.singleTypes : form.collectionTypes;
++          section[ctUid] ??= {};
++          section[ctUid][actionName] = { properties: { enabled: true } };
+         } else if (typeKey.startsWith("plugin::")) {
+           const pluginName = typeKey.replace("plugin::", "");
+-          if (form.plugins[pluginName]?.[controllerName]?.[actionName]) {
+-            form.plugins[pluginName][controllerName][actionName].properties.enabled = true;
+-          }
++          form.plugins[pluginName] ??= {};
++          form.plugins[pluginName][controllerName] ??= {};
++          form.plugins[pluginName][controllerName][actionName] = { properties: { enabled: true } };
+         }
+       }
+     }
+diff --git a/dist/admin/index-xW2-6eoq.js b/dist/admin/index-xW2-6eoq.js
+index 6924b62883a532478574d091d5c017d0ee8d77cd..56880c1e8b342f8c56faf3873d4fb759b3097471 100644
+--- a/dist/admin/index-xW2-6eoq.js
++++ b/dist/admin/index-xW2-6eoq.js
+@@ -236,17 +236,14 @@ function apiToFormState(api, layout) {
+         if (!actionData?.enabled) continue;
+         if (typeKey.startsWith("api::")) {
+           const ctUid = `${typeKey}.${controllerName}`;
+-          if (collectionUids.has(ctUid) && form.collectionTypes[ctUid]?.[actionName]) {
+-            form.collectionTypes[ctUid][actionName].properties.enabled = true;
+-          }
+-          if (singleUids.has(ctUid) && form.singleTypes[ctUid]?.[actionName]) {
+-            form.singleTypes[ctUid][actionName].properties.enabled = true;
+-          }
++          const section = singleUids.has(ctUid) ? form.singleTypes : form.collectionTypes;
++          section[ctUid] ??= {};
++          section[ctUid][actionName] = { properties: { enabled: true } };
+         } else if (typeKey.startsWith("plugin::")) {
+           const pluginName = typeKey.replace("plugin::", "");
+-          if (form.plugins[pluginName]?.[controllerName]?.[actionName]) {
+-            form.plugins[pluginName][controllerName][actionName].properties.enabled = true;
+-          }
++          form.plugins[pluginName] ??= {};
++          form.plugins[pluginName][controllerName] ??= {};
++          form.plugins[pluginName][controllerName][actionName] = { properties: { enabled: true } };
+         }
+       }
+     }
+diff --git a/dist/server/index.js b/dist/server/index.js
+index 6f8926f87d7a6d27d7dc4e5c8dcfb9341f949c73..d82cd4e3427d4b155320aff820f1d41fb372128d 100644
+--- a/dist/server/index.js
++++ b/dist/server/index.js
+@@ -82,23 +82,19 @@ const bootstrap = async ({ strapi: strapi2 }) => {
+   const provider = strapi2.service("admin::permission").actionProvider;
+   await provider.registerMany(RBAC_ACTIONS);
+   await manualPermissionOverride(strapi2);
+-  const roleCount = await strapi2.documents(ROLE_UID).count({});
+-  if (roleCount === 0) {
+-    await strapi2.documents(ROLE_UID).create({
+-      data: {
+-        name: "Authenticated",
+-        description: "Default role given to authenticated users.",
+-        type: "authenticated"
++  // Serialize default-role repair across concurrently starting PostgreSQL workers.
++  await strapi2.db.transaction(async ({ trx }) => {
++    await trx.raw("SELECT pg_advisory_xact_lock(?, ?)", [184713, 1]);
++    for (const type of ["authenticated", "public"]) {
++      const existing = await strapi2.documents(ROLE_UID).findFirst({ filters: { type } });
++      if (!existing) {
++        await strapi2.documents(ROLE_UID).create({ data: {
++          name: type === "public" ? "Public" : "Authenticated",
++          description: `Default role for ${type} users.`, type
++        } });
+       }
+-    });
+-    await strapi2.documents(ROLE_UID).create({
+-      data: {
+-        name: "Public",
+-        description: "Default role given to unauthenticated users.",
+-        type: "public"
+-      }
+-    });
+-  }
++    }
++  });
+ };
+ const manualPermissionOverride = async (strapi2) => {
+   const provider = strapi2.service("admin::permission").actionProvider;
+@@ -218,33 +214,32 @@ const role$2 = strapi$2.factories.createCoreController(ROLE_UID, ({ strapi: stra
+   const service = strapi2.plugin("api-permissions").service("permission");
+   return {
+     async create(ctx) {
+-      const body = ctx.request.body || {
+-        data: {}
+-      };
+-      if (!body) return super.create(ctx);
+-      const { permissions = {}, ...rest } = body.data;
+-      body.data = rest;
+-      const result = await super.create(ctx);
+-      const actions = service.extractActionsFromPermissions(permissions);
+-      await service.connectRolesToPermissions(
+-        result.data.documentId,
+-        actions || []
+-      );
+-      return result;
++      return strapi2.db.transaction(async () => {
++        const data = ctx.request.body?.data;
++        if (!data || typeof data !== "object" || Array.isArray(data)) {
++          throw new utils.errors.ValidationError("Missing data payload");
++        }
++        const { permissions = {}, ...rest } = data;
++        const actions = service.extractActionsFromPermissions(permissions);
++        ctx.request.body.data = rest;
++        const result = await super.create(ctx);
++        await service.connectRolesToPermissions(result.data.documentId, actions);
++        return result;
++      });
+     },
+     async update(ctx) {
+-      const body = ctx.request.body || {
+-        data: {}
+-      };
+-      if (!body) return super.update(ctx);
+-      const { permissions, ...rest } = body.data;
+-      body.data = rest;
+-      const result = await super.update(ctx);
+-      if (permissions !== void 0) {
+-        const actions = service.extractActionsFromPermissions(permissions);
+-        await service.connectRolesToPermissions(ctx.params.id, actions);
+-      }
+-      return result;
++      return strapi2.db.transaction(async () => {
++        const data = ctx.request.body?.data;
++        if (!data || typeof data !== "object" || Array.isArray(data)) {
++          throw new utils.errors.ValidationError("Missing data payload");
++        }
++        const { permissions, ...rest } = data;
++        const actions = permissions === undefined ? undefined : service.extractActionsFromPermissions(permissions);
++        ctx.request.body.data = rest;
++        const result = await super.update(ctx);
++        if (actions !== undefined) await service.connectRolesToPermissions(ctx.params.id, actions);
++        return result;
++      });
+     }
+   };
+ });
+@@ -284,40 +279,43 @@ const includeUserCount = async (context, next) => {
+   return addUserCount(response);
+ };
+ const reassignOrphanedUsers = async (context, next) => {
+-  const { action, contentType } = context;
+-  if (contentType.uid !== ROLE_UID) {
+-    return next();
+-  }
+-  if (action !== "delete") {
+-    return next();
+-  }
+-  const params = context.params;
+-  const publicRole = await strapi.documents(ROLE_UID).findFirst({
+-    filters: { type: "public" }
+-  });
+-  if (!publicRole) {
+-    throw new utils.errors.ApplicationError("Public role not found");
+-  }
+-  if (params.documentId === publicRole.documentId) {
+-    throw new utils.errors.ApplicationError("Cannot delete public role");
+-  }
+-  const role2 = await strapi.documents(ROLE_UID).findOne({
+-    documentId: params.documentId
+-  });
+-  if (!role2) {
++  if (context.contentType.uid !== ROLE_UID || !["update", "delete"].includes(context.action)) return next();
++  return strapi.db.transaction(async ({ trx }) => {
++    const { documentId, data } = context.params;
++    const table = strapi.db.metadata.get(ROLE_UID).tableName;
++    await trx(table).where({ document_id: documentId }).forUpdate().first();
++    const role = await strapi.documents(ROLE_UID).findOne({ documentId });
++    if (!role) return next();
++    const reserved = ["public", "authenticated"];
++    if (context.action === "update") {
++      if (data?.type !== undefined && data.type !== role.type &&
++          (reserved.includes(role.type) || reserved.includes(data.type))) {
++        throw new utils.errors.ValidationError("Default role types cannot be changed");
++      }
++      return next();
++    }
++    if (reserved.includes(role.type)) throw new utils.errors.ApplicationError("Cannot delete a default role");
++    const publicRole = await strapi.documents(ROLE_UID).findFirst({ filters: { type: "public" } });
++    if (!publicRole) throw new utils.errors.ApplicationError("Public role not found");
++    const userUID = getUserUID();
++    const users = await strapi.documents(userUID).findMany({
++      filters: { roles: { documentId } }, sort: ["id:asc"]
++    });
++    for (const user of users) {
++      // Re-read memberships after locking: concurrent deletions must not restore roles.
++      await trx(strapi.db.metadata.get(userUID).tableName).where({ id: user.id }).forUpdate().first();
++      const current = await strapi.documents(userUID).findOne({
++        documentId: user.documentId, populate: ["roles"]
++      });
++      if (!current) continue;
++      const remaining = (current.roles ?? []).filter((r) => r.documentId !== documentId);
++      await strapi.documents(userUID).update({
++        documentId: user.documentId,
++        data: { roles: remaining.length ? { disconnect: [documentId] } : { set: [publicRole.documentId] } }
++      });
++    }
+     return next();
+-  }
+-  const userService = strapi.documents(getUserUID());
+-  const users = await userService.findMany({
+-    filters: { roles: { documentId: params.documentId } }
+   });
+-  for (const user of users) {
+-    await userService.update({
+-      documentId: user.documentId,
+-      data: { roles: { set: [publicRole.documentId] } }
+-    });
+-  }
+-  return next();
+ };
+ function toContentAPIPermissions(permissions) {
+   return permissions.map((p) => ({ action: p.action }));
+@@ -353,22 +351,19 @@ function createContentApiStrategy(strapi2) {
+           permissions = await getPublicRolePermissions(strapi2);
+         }
+         const contentApiPermissions = toContentAPIPermissions(permissions);
+-        if (contentApiPermissions.length === 0) {
+-          return { authenticated: false };
+-        }
++        // An empty role must produce an empty ability, not fall through to another strategy.
+         const rawAbility = await strapi2.contentAPI.permissions.engine.generateAbility(
+           contentApiPermissions
+         );
+-        const ability = {
+-          can: (action) => rawAbility.can(action, "all")
+-        };
++        const ability = rawAbility;
+         return {
+           authenticated: true,
+           credentials: sessionInfo != null ? ctx.state.user ?? sessionInfo : null,
+           ability
+         };
+-      } catch {
+-        return { authenticated: false };
++      } catch (error) {
++        strapi2.log.error("API Permissions authentication failed", error);
++        return { error: "Invalid credentials or unavailable authorization service" };
+       }
+     },
+     verify: async (auth, config2) => {
+@@ -384,7 +379,7 @@ function createContentApiStrategy(strapi2) {
+       }
+       const scopes = Array.isArray(config2.scope) ? config2.scope : [config2.scope];
+       const ability = auth.ability;
+-      const isAllowed = scopes.every((scope) => ability.can(scope, "all"));
++      const isAllowed = scopes.every((scope) => ability.can(scope));
+       if (!isAllowed) {
+         throw new ForbiddenError();
+       }
+@@ -420,9 +415,40 @@ const extendUserContentType = () => {
+ };
+ const register = () => {
+   extendUserContentType();
++  const up = strapi.plugin("users-permissions");
++  for (const [controllerName, actions] of [["user", ["create", "update"]], ["auth", ["register"]]]) {
++    const controller = up?.controllers?.[controllerName];
++    if (!controller) continue;
++    for (const action of actions) {
++      const original = controller[action];
++      if (!original) continue;
++      controller[action] = async function(ctx, ...args) {
++        if (Object.prototype.hasOwnProperty.call(ctx.request.body ?? {}, "roles")) {
++          throw new utils.errors.ForbiddenError("Roles must be assigned through the admin API");
++        }
++        return original.call(this, ctx, ...args);
++      };
++    }
++  }
+   strapi.documents.use(reassignOrphanedUsers);
+   strapi.documents.use(includeUserCount);
+-  strapi.get("auth").register("content-api", createContentApiStrategy(strapi));
++  const auth = strapi.get("auth");
++  auth.register("content-api", createContentApiStrategy(strapi));
++  const authenticate = auth.authenticate;
++  auth.authenticate = function(ctx, next) {
++    const route = ctx.state.route;
++    if (route?.info?.type === "content-api" && route.config?.auth !== false) {
++      // Select one website-user authorization system for every Content API route.
++      // Service API tokens retain their own scope checks; never fall back to U&P.
++      ctx.state.route = {
++        ...route,
++        config: { ...route.config, auth: {
++          ...route.config?.auth, strategies: ["content-api-token", "content-api"]
++        } }
++      };
++    }
++    return authenticate.call(this, ctx, next);
++  };
+ };
+ const role$1 = {
+   routes: [
+@@ -430,31 +456,31 @@ const role$1 = {
+       method: "GET",
+       path: "/roles",
+       handler: "role.find",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.read"] } }] }
+     },
+     {
+       method: "POST",
+       path: "/roles",
+       handler: "role.create",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.create"] } }] }
+     },
+     {
+       method: "GET",
+       path: "/roles/:id",
+       handler: "role.findOne",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.read"] } }] }
+     },
+     {
+       method: "PUT",
+       path: "/roles/:id",
+       handler: "role.update",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.update"] } }] }
+     },
+     {
+       method: "DELETE",
+       path: "/roles/:id",
+       handler: "role.delete",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.delete"] } }] }
+     }
+   ]
+ };
+@@ -464,7 +490,8 @@ const adminAPIRoutes = () => ({
+     {
+       method: "GET",
+       path: "/permissions/layout",
+-      handler: "permission.layout"
++      handler: "permission.layout",
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.read"] } }] }
+     },
+     ...role$1.routes
+   ]
+@@ -528,6 +555,19 @@ function buildPermissionsLayout(strapi2) {
+       }
+     }
+   }
++  // Controllers without a matching content type still have enforceable actions.
++  for (const [apiKey, entry] of Object.entries(actionsMap)) {
++    if (!apiKey.startsWith("api::")) continue;
++    for (const [controllerName, actions] of Object.entries(entry.controllers ?? {})) {
++      const uid = `${apiKey}.${controllerName}`;
++      if (collectionSubjects.some((s) => s.uid === uid) || singleSubjects.some((s) => s.uid === uid)) continue;
++      collectionSubjects.push({ uid, label: controllerName });
++      for (const actionId of actions) {
++        if (!collectionActions.has(actionId)) collectionActions.set(actionId, { actionId, label: actionLabels[actionId] ?? actionId, subjects: [] });
++        collectionActions.get(actionId).subjects.push(uid);
++      }
++    }
++  }
+   for (const [pluginKey, value] of Object.entries(actionsMap)) {
+     if (!pluginKey.startsWith("plugin::") || pluginKey.includes(PLUGIN_ID))
+       continue;
+@@ -558,6 +598,7 @@ function buildPermissionsLayout(strapi2) {
+   };
+ }
+ function extractActionsFromPermissions(payload) {
++  if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new utils.errors.ValidationError("Invalid permissions payload");
+   const actions = /* @__PURE__ */ new Set();
+   const contentTypes2 = { ...payload.collectionTypes, ...payload.singleTypes };
+   for (const [uid, controllerActions] of Object.entries(contentTypes2)) {
+@@ -600,15 +641,14 @@ function extractActionsFromPermissions(payload) {
+   return Array.from(actions);
+ }
+ async function connectRolesToPermissions(roleID, actionList = [], strapi2) {
+-  return strapi2.db.transaction(async () => {
++  return strapi2.db.transaction(async ({ trx }) => {
++    await trx(strapi2.db.metadata.get(ROLE_UID).tableName).where({ document_id: roleID }).forUpdate().first();
++    const previous = await strapi2.documents(PERMISSION_UID).findMany({ filters: { role: { documentId: roleID } } });
+     const existing = await strapi2.documents("plugin::api-permissions.permission").findMany({
+       populate: ["role"],
+       filters: {
+         action: { $in: actionList },
+-        $or: [
+-          { role: { documentId: { $eq: roleID } } },
+-          { role: { documentId: { $null: true } } }
+-        ]
++        role: { documentId: { $eq: roleID } }
+       },
+       fields: ["documentId", "action"]
+     });
+@@ -627,7 +667,7 @@ async function connectRolesToPermissions(roleID, actionList = [], strapi2) {
+       data: { permissions: { set: targetDocumentIds } }
+     });
+     await strapi2.db.query("plugin::api-permissions.permission").deleteMany({
+-      where: { role: { $null: true } }
++      where: { documentId: { $in: previous.map((p) => p.documentId) }, role: { $null: true } }
+     });
+   });
+ }
+diff --git a/dist/server/index.mjs b/dist/server/index.mjs
+index 3f4532162f867aedd6b83b921b6a4b48f7894b62..c4cb6d54cda549d9bdc1a9998c33cf029faaa0d0 100644
+--- a/dist/server/index.mjs
++++ b/dist/server/index.mjs
+@@ -58,23 +58,19 @@ const bootstrap = async ({ strapi: strapi2 }) => {
+   const provider = strapi2.service("admin::permission").actionProvider;
+   await provider.registerMany(RBAC_ACTIONS);
+   await manualPermissionOverride(strapi2);
+-  const roleCount = await strapi2.documents(ROLE_UID).count({});
+-  if (roleCount === 0) {
+-    await strapi2.documents(ROLE_UID).create({
+-      data: {
+-        name: "Authenticated",
+-        description: "Default role given to authenticated users.",
+-        type: "authenticated"
++  // Serialize default-role repair across concurrently starting PostgreSQL workers.
++  await strapi2.db.transaction(async ({ trx }) => {
++    await trx.raw("SELECT pg_advisory_xact_lock(?, ?)", [184713, 1]);
++    for (const type of ["authenticated", "public"]) {
++      const existing = await strapi2.documents(ROLE_UID).findFirst({ filters: { type } });
++      if (!existing) {
++        await strapi2.documents(ROLE_UID).create({ data: {
++          name: type === "public" ? "Public" : "Authenticated",
++          description: `Default role for ${type} users.`, type
++        } });
+       }
+-    });
+-    await strapi2.documents(ROLE_UID).create({
+-      data: {
+-        name: "Public",
+-        description: "Default role given to unauthenticated users.",
+-        type: "public"
+-      }
+-    });
+-  }
++    }
++  });
+ };
+ const manualPermissionOverride = async (strapi2) => {
+   const provider = strapi2.service("admin::permission").actionProvider;
+@@ -194,33 +190,32 @@ const role$2 = factories.createCoreController(ROLE_UID, ({ strapi: strapi2 }) =>
+   const service = strapi2.plugin("api-permissions").service("permission");
+   return {
+     async create(ctx) {
+-      const body = ctx.request.body || {
+-        data: {}
+-      };
+-      if (!body) return super.create(ctx);
+-      const { permissions = {}, ...rest } = body.data;
+-      body.data = rest;
+-      const result = await super.create(ctx);
+-      const actions = service.extractActionsFromPermissions(permissions);
+-      await service.connectRolesToPermissions(
+-        result.data.documentId,
+-        actions || []
+-      );
+-      return result;
++      return strapi2.db.transaction(async () => {
++        const data = ctx.request.body?.data;
++        if (!data || typeof data !== "object" || Array.isArray(data)) {
++          throw new errors.ValidationError("Missing data payload");
++        }
++        const { permissions = {}, ...rest } = data;
++        const actions = service.extractActionsFromPermissions(permissions);
++        ctx.request.body.data = rest;
++        const result = await super.create(ctx);
++        await service.connectRolesToPermissions(result.data.documentId, actions);
++        return result;
++      });
+     },
+     async update(ctx) {
+-      const body = ctx.request.body || {
+-        data: {}
+-      };
+-      if (!body) return super.update(ctx);
+-      const { permissions, ...rest } = body.data;
+-      body.data = rest;
+-      const result = await super.update(ctx);
+-      if (permissions !== void 0) {
+-        const actions = service.extractActionsFromPermissions(permissions);
+-        await service.connectRolesToPermissions(ctx.params.id, actions);
+-      }
+-      return result;
++      return strapi2.db.transaction(async () => {
++        const data = ctx.request.body?.data;
++        if (!data || typeof data !== "object" || Array.isArray(data)) {
++          throw new errors.ValidationError("Missing data payload");
++        }
++        const { permissions, ...rest } = data;
++        const actions = permissions === undefined ? undefined : service.extractActionsFromPermissions(permissions);
++        ctx.request.body.data = rest;
++        const result = await super.update(ctx);
++        if (actions !== undefined) await service.connectRolesToPermissions(ctx.params.id, actions);
++        return result;
++      });
+     }
+   };
+ });
+@@ -260,40 +255,43 @@ const includeUserCount = async (context, next) => {
+   return addUserCount(response);
+ };
+ const reassignOrphanedUsers = async (context, next) => {
+-  const { action, contentType } = context;
+-  if (contentType.uid !== ROLE_UID) {
+-    return next();
+-  }
+-  if (action !== "delete") {
+-    return next();
+-  }
+-  const params = context.params;
+-  const publicRole = await strapi.documents(ROLE_UID).findFirst({
+-    filters: { type: "public" }
+-  });
+-  if (!publicRole) {
+-    throw new errors.ApplicationError("Public role not found");
+-  }
+-  if (params.documentId === publicRole.documentId) {
+-    throw new errors.ApplicationError("Cannot delete public role");
+-  }
+-  const role2 = await strapi.documents(ROLE_UID).findOne({
+-    documentId: params.documentId
+-  });
+-  if (!role2) {
++  if (context.contentType.uid !== ROLE_UID || !["update", "delete"].includes(context.action)) return next();
++  return strapi.db.transaction(async ({ trx }) => {
++    const { documentId, data } = context.params;
++    const table = strapi.db.metadata.get(ROLE_UID).tableName;
++    await trx(table).where({ document_id: documentId }).forUpdate().first();
++    const role = await strapi.documents(ROLE_UID).findOne({ documentId });
++    if (!role) return next();
++    const reserved = ["public", "authenticated"];
++    if (context.action === "update") {
++      if (data?.type !== undefined && data.type !== role.type &&
++          (reserved.includes(role.type) || reserved.includes(data.type))) {
++        throw new errors.ValidationError("Default role types cannot be changed");
++      }
++      return next();
++    }
++    if (reserved.includes(role.type)) throw new errors.ApplicationError("Cannot delete a default role");
++    const publicRole = await strapi.documents(ROLE_UID).findFirst({ filters: { type: "public" } });
++    if (!publicRole) throw new errors.ApplicationError("Public role not found");
++    const userUID = getUserUID();
++    const users = await strapi.documents(userUID).findMany({
++      filters: { roles: { documentId } }, sort: ["id:asc"]
++    });
++    for (const user of users) {
++      // Re-read memberships after locking: concurrent deletions must not restore roles.
++      await trx(strapi.db.metadata.get(userUID).tableName).where({ id: user.id }).forUpdate().first();
++      const current = await strapi.documents(userUID).findOne({
++        documentId: user.documentId, populate: ["roles"]
++      });
++      if (!current) continue;
++      const remaining = (current.roles ?? []).filter((r) => r.documentId !== documentId);
++      await strapi.documents(userUID).update({
++        documentId: user.documentId,
++        data: { roles: remaining.length ? { disconnect: [documentId] } : { set: [publicRole.documentId] } }
++      });
++    }
+     return next();
+-  }
+-  const userService = strapi.documents(getUserUID());
+-  const users = await userService.findMany({
+-    filters: { roles: { documentId: params.documentId } }
+   });
+-  for (const user of users) {
+-    await userService.update({
+-      documentId: user.documentId,
+-      data: { roles: { set: [publicRole.documentId] } }
+-    });
+-  }
+-  return next();
+ };
+ function toContentAPIPermissions(permissions) {
+   return permissions.map((p) => ({ action: p.action }));
+@@ -329,22 +327,19 @@ function createContentApiStrategy(strapi2) {
+           permissions = await getPublicRolePermissions(strapi2);
+         }
+         const contentApiPermissions = toContentAPIPermissions(permissions);
+-        if (contentApiPermissions.length === 0) {
+-          return { authenticated: false };
+-        }
++        // An empty role must produce an empty ability, not fall through to another strategy.
+         const rawAbility = await strapi2.contentAPI.permissions.engine.generateAbility(
+           contentApiPermissions
+         );
+-        const ability = {
+-          can: (action) => rawAbility.can(action, "all")
+-        };
++        const ability = rawAbility;
+         return {
+           authenticated: true,
+           credentials: sessionInfo != null ? ctx.state.user ?? sessionInfo : null,
+           ability
+         };
+-      } catch {
+-        return { authenticated: false };
++      } catch (error) {
++        strapi2.log.error("API Permissions authentication failed", error);
++        return { error: "Invalid credentials or unavailable authorization service" };
+       }
+     },
+     verify: async (auth, config2) => {
+@@ -360,7 +355,7 @@ function createContentApiStrategy(strapi2) {
+       }
+       const scopes = Array.isArray(config2.scope) ? config2.scope : [config2.scope];
+       const ability = auth.ability;
+-      const isAllowed = scopes.every((scope) => ability.can(scope, "all"));
++      const isAllowed = scopes.every((scope) => ability.can(scope));
+       if (!isAllowed) {
+         throw new ForbiddenError();
+       }
+@@ -396,9 +391,40 @@ const extendUserContentType = () => {
+ };
+ const register = () => {
+   extendUserContentType();
++  const up = strapi.plugin("users-permissions");
++  for (const [controllerName, actions] of [["user", ["create", "update"]], ["auth", ["register"]]]) {
++    const controller = up?.controllers?.[controllerName];
++    if (!controller) continue;
++    for (const action of actions) {
++      const original = controller[action];
++      if (!original) continue;
++      controller[action] = async function(ctx, ...args) {
++        if (Object.prototype.hasOwnProperty.call(ctx.request.body ?? {}, "roles")) {
++          throw new errors.ForbiddenError("Roles must be assigned through the admin API");
++        }
++        return original.call(this, ctx, ...args);
++      };
++    }
++  }
+   strapi.documents.use(reassignOrphanedUsers);
+   strapi.documents.use(includeUserCount);
+-  strapi.get("auth").register("content-api", createContentApiStrategy(strapi));
++  const auth = strapi.get("auth");
++  auth.register("content-api", createContentApiStrategy(strapi));
++  const authenticate = auth.authenticate;
++  auth.authenticate = function(ctx, next) {
++    const route = ctx.state.route;
++    if (route?.info?.type === "content-api" && route.config?.auth !== false) {
++      // Select one website-user authorization system for every Content API route.
++      // Service API tokens retain their own scope checks; never fall back to U&P.
++      ctx.state.route = {
++        ...route,
++        config: { ...route.config, auth: {
++          ...route.config?.auth, strategies: ["content-api-token", "content-api"]
++        } }
++      };
++    }
++    return authenticate.call(this, ctx, next);
++  };
+ };
+ const role$1 = {
+   routes: [
+@@ -406,31 +432,31 @@ const role$1 = {
+       method: "GET",
+       path: "/roles",
+       handler: "role.find",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.read"] } }] }
+     },
+     {
+       method: "POST",
+       path: "/roles",
+       handler: "role.create",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.create"] } }] }
+     },
+     {
+       method: "GET",
+       path: "/roles/:id",
+       handler: "role.findOne",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.read"] } }] }
+     },
+     {
+       method: "PUT",
+       path: "/roles/:id",
+       handler: "role.update",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.update"] } }] }
+     },
+     {
+       method: "DELETE",
+       path: "/roles/:id",
+       handler: "role.delete",
+-      config: { policies: [] }
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.delete"] } }] }
+     }
+   ]
+ };
+@@ -440,7 +466,8 @@ const adminAPIRoutes = () => ({
+     {
+       method: "GET",
+       path: "/permissions/layout",
+-      handler: "permission.layout"
++      handler: "permission.layout",
++      config: { policies: [{ name: "admin::hasPermissions", config: { actions: ["plugin::api-permissions.roles.read"] } }] }
+     },
+     ...role$1.routes
+   ]
+@@ -504,6 +531,19 @@ function buildPermissionsLayout(strapi2) {
+       }
+     }
+   }
++  // Controllers without a matching content type still have enforceable actions.
++  for (const [apiKey, entry] of Object.entries(actionsMap)) {
++    if (!apiKey.startsWith("api::")) continue;
++    for (const [controllerName, actions] of Object.entries(entry.controllers ?? {})) {
++      const uid = `${apiKey}.${controllerName}`;
++      if (collectionSubjects.some((s) => s.uid === uid) || singleSubjects.some((s) => s.uid === uid)) continue;
++      collectionSubjects.push({ uid, label: controllerName });
++      for (const actionId of actions) {
++        if (!collectionActions.has(actionId)) collectionActions.set(actionId, { actionId, label: actionLabels[actionId] ?? actionId, subjects: [] });
++        collectionActions.get(actionId).subjects.push(uid);
++      }
++    }
++  }
+   for (const [pluginKey, value] of Object.entries(actionsMap)) {
+     if (!pluginKey.startsWith("plugin::") || pluginKey.includes(PLUGIN_ID))
+       continue;
+@@ -534,6 +574,7 @@ function buildPermissionsLayout(strapi2) {
+   };
+ }
+ function extractActionsFromPermissions(payload) {
++  if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new errors.ValidationError("Invalid permissions payload");
+   const actions = /* @__PURE__ */ new Set();
+   const contentTypes2 = { ...payload.collectionTypes, ...payload.singleTypes };
+   for (const [uid, controllerActions] of Object.entries(contentTypes2)) {
+@@ -576,15 +617,14 @@ function extractActionsFromPermissions(payload) {
+   return Array.from(actions);
+ }
+ async function connectRolesToPermissions(roleID, actionList = [], strapi2) {
+-  return strapi2.db.transaction(async () => {
++  return strapi2.db.transaction(async ({ trx }) => {
++    await trx(strapi2.db.metadata.get(ROLE_UID).tableName).where({ document_id: roleID }).forUpdate().first();
++    const previous = await strapi2.documents(PERMISSION_UID).findMany({ filters: { role: { documentId: roleID } } });
+     const existing = await strapi2.documents("plugin::api-permissions.permission").findMany({
+       populate: ["role"],
+       filters: {
+         action: { $in: actionList },
+-        $or: [
+-          { role: { documentId: { $eq: roleID } } },
+-          { role: { documentId: { $null: true } } }
+-        ]
++        role: { documentId: { $eq: roleID } }
+       },
+       fields: ["documentId", "action"]
+     });
+@@ -603,7 +643,7 @@ async function connectRolesToPermissions(roleID, actionList = [], strapi2) {
+       data: { permissions: { set: targetDocumentIds } }
+     });
+     await strapi2.db.query("plugin::api-permissions.permission").deleteMany({
+-      where: { role: { $null: true } }
++      where: { documentId: { $in: previous.map((p) => p.documentId) }, role: { $null: true } }
+     });
+   });
+ }

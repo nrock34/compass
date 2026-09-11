@@ -1,0 +1,70 @@
+/* RomeWithMe frontend: app.css tokens, AuthShell, Button and Input primitives.
+   The standalone portal retains its composing workspace, without site navigation. */
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url('./brand/dm-sans-400.ttf') format('truetype'); }
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 500; font-display: swap; src: url('./brand/dm-sans-500.ttf') format('truetype'); }
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 600; font-display: swap; src: url('./brand/dm-sans-600.ttf') format('truetype'); }
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 700; font-display: swap; src: url('./brand/dm-sans-700.ttf') format('truetype'); }
+.ce-portal {
+  --ce-ink: oklch(0.2781 0.0296 256.8480);
+  --ce-muted: color-mix(in oklch, var(--ce-ink) 75%, white);
+  --ce-line: oklch(0.8717 0.0093 258.3382);
+  --ce-paper: oklch(0.9970 0 0);
+  --ce-inset: oklch(0.9670 0.0029 264.5419);
+  --ce-action: oklch(0.6437 0.1818 38.2100);
+  --ce-ring: oklch(0.7049 0.1867 47.6044);
+  --ce-accent: oklch(0.9869 0.0214 95.2774);
+  --ce-error: oklch(0.5771 0.2152 27.3250);
+  --ce-radius: .475rem;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: -.012em;
+}
+.ce-portal button, .ce-portal input, .ce-portal select, .ce-portal textarea { border-radius: var(--ce-radius); }
+.ce-portal button { font-weight: 500; }
+.ce-portal input, .ce-portal select, .ce-portal textarea { background: white; }
+.ce-portal button:hover:not(:disabled) { background: var(--ce-accent); }
+.ce-portal .ce-primary:hover:not(:disabled) { background: color-mix(in oklch, var(--ce-action) 90%, black); }
+.ce-portal :is(button,input,select,textarea,a,summary):focus-visible { outline-color: var(--ce-ring); }
+.ce-portal h1 { font-weight: 600; letter-spacing: -.035em; }
+.ce-portal .ce-review-section, .ce-portal .ce-related { border-radius: var(--ce-radius); background: white; }
+.ce-portal .ce-portal-account { margin-bottom: 8px; }
+.ce-portal-identity { display: inline-flex; align-items: center; gap: 10px; }
+.ce-portal-identity strong { font-size: 16px; color: var(--ce-ink); letter-spacing: -.035em; }
+.ce-account-name { display: block; font-size: 12px; }
+.ce-brand-mark { display: inline-block; flex-shrink: 0; width: 36px; height: 36px; background: url('./brand/globe.svg') center / contain no-repeat; }
+/* Provider authentication is a dedicated workspace entrance, not the public login. */
+.ce-auth-shell { min-height: 100dvh; display: grid; place-items: center; padding: 40px 20px; background: var(--ce-inset); }
+.ce-provider-login { width: 100%; max-width: 440px; }
+.ce-provider-wordmark { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 24px; font-size: 22px; font-weight: 700; letter-spacing: -.04em; }
+.ce-portal .ce-auth { width: 100%; max-width: none; padding: 32px; border: 1px solid var(--ce-line); border-top: 4px solid var(--ce-action); border-radius: var(--ce-radius); background: white; }
+.ce-portal .ce-auth h1 { margin-top: 8px; font-size: 24px; }
+.ce-portal .ce-auth-context { color: var(--ce-ink); font-size: 14px; font-weight: 600; margin: 0 0 8px; }
+.ce-portal .ce-auth > p:not(.ce-auth-context) { color: var(--ce-muted); font-size: 14px; }
+.ce-portal .ce-auth form { gap: 16px; margin: 24px 0 16px; padding-top: 24px; border-top: 1px solid var(--ce-line); }
+.ce-portal .ce-auth label { font-size: 14px; font-weight: 600; }
+.ce-portal .ce-auth > .ce-help { border-top: 1px solid var(--ce-line); padding-top: 20px; margin-top: 20px; margin-bottom: 0; font-size: 13px !important; }
+@media (max-width: 600px) {
+  .ce-auth-shell { padding: 24px 16px; }
+  .ce-portal .ce-auth { padding: 24px; }
+  .ce-provider-wordmark { margin-bottom: 20px; }
+}
+
+/* White form groups sit on a quiet inset surface; controls remain visually separate. */
+.ce-portal .ce-editor > .ce-form-section { background: var(--ce-inset); border: 1px solid var(--ce-line); border-top: 0; padding: 0 24px 28px; }
+.ce-portal .ce-editor > .ce-sections { border: 1px solid var(--ce-line); background: white; padding-inline: 20px; }
+.ce-portal .ce-editor > .ce-mobile-sections { border-bottom: 1px solid var(--ce-line); }
+.ce-portal .ce-form-block, .ce-portal .ce-owned-block, .ce-portal .ce-catalog-panel { background: white; }
+.ce-portal .ce-form-block > legend { padding-inline: 8px; }
+.ce-portal .ce-section-heading { padding-bottom: 16px; border-bottom: 1px solid var(--ce-line); margin-bottom: 28px; }
+.ce-portal .ce-section-heading h2 { font-size: 23px; }
+.ce-portal .ce-editor > .ce-section-footer { border-top: 0; }
+.ce-portal .ce-portal-account { padding-bottom: 12px; border-bottom: 1px solid var(--ce-line); margin-bottom: 12px; }
+.ce-portal .ce-editor > .ce-entry-header { margin-bottom: 16px; }
+.ce-portal .ce-form-block input, .ce-portal .ce-form-block select, .ce-portal .ce-form-block textarea, .ce-portal .ce-owned-block input, .ce-portal .ce-owned-block select, .ce-portal .ce-owned-block textarea { background: var(--ce-paper); }
+.ce-portal .ce-related { background: var(--ce-inset); }
+.ce-portal .ce-selected { background: var(--ce-accent); border: 1px solid var(--ce-line); border-radius: var(--ce-radius); padding-inline: 12px; }
+.ce-portal .ce-selected li:last-child { border-bottom: 0; }
+@media (max-width: 760px) {
+  .ce-portal .ce-editor > .ce-form-section { padding: 0 12px 20px; }
+  .ce-portal .ce-portal-account { padding-bottom: 8px; margin-bottom: 8px; }
+  .ce-portal .ce-editor > .ce-entry-header { margin-bottom: 4px; }
+}

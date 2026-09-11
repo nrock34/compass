@@ -1,0 +1,3 @@
+dev:
+	docker compose up -d postgres redis minio minio-init
+	@set -a; . ./.env; set +a; DATABASE_HOST=127.0.0.1 DATABASE_PORT="$${POSTGRES_PORT:-54325}" DATABASE_PASSWORD="$$STRAPI_DATABASE_PASSWORD" S3_BUCKET_NAME="$${S3_BUCKET_NAME:-rwm-media}" S3_ACCESS_KEY_ID="$${S3_ACCESS_KEY_ID:-rwm-minio}" S3_SECRET_ACCESS_KEY="$${S3_SECRET_ACCESS_KEY:-rwm-minio-local-password}" S3_ENDPOINT="$${S3_ENDPOINT:-http://127.0.0.1:$${MINIO_PORT:-9000}}" S3_PUBLIC_BASE="$${S3_PUBLIC_BASE:-http://localhost:$${MINIO_PORT:-9000}/rwm-media}" S3_REGION="$${S3_REGION:-us-east-1}" S3_FORCE_PATH_STYLE="$${S3_FORCE_PATH_STYLE:-true}" pnpm develop

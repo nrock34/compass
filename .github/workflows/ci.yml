@@ -1,0 +1,99 @@
+name: Strapi CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, development]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: strapi-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rwm_catalog_editor_test
+          POSTGRES_USER: rwm_strapi
+          POSTGRES_PASSWORD: ci-postgres-password
+        ports: ["54325:5432"]
+        options: >-
+          --health-cmd "pg_isready -U rwm_strapi -d rwm_catalog_editor_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6380:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      NODE_ENV: test
+      STRAPI_TELEMETRY_DISABLED: "true"
+      APP_KEYS: ci-app-key-one,ci-app-key-two
+      ADMIN_JWT_SECRET: ci-admin-secret-independent-from-user-secret
+      JWT_SECRET: ci-user-secret-independent-from-admin-secret
+      API_TOKEN_SALT: ci-api-token-salt
+      TRANSFER_TOKEN_SALT: ci-transfer-token-salt
+      ENCRYPTION_KEY: ci-encryption-key
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: "54325"
+      DATABASE_NAME: rwm_catalog_editor_test
+      DATABASE_USERNAME: rwm_strapi
+      DATABASE_PASSWORD: ci-postgres-password
+      DATABASE_FORCE_MIGRATION: "false"
+      CACHE_REDIS_HOST: 127.0.0.1
+      CACHE_REDIS_PORT: "6380"
+      CRON_ENABLED: "false"
+      PUBLIC_URL: http://127.0.0.1:14379
+      CATALOG_EDITOR_PUBLIC_ORIGIN: http://127.0.0.1:14379
+      UP_COOKIE_SECURE: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.22.3"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - name: Unit and domain tests
+        run: >-
+          node --experimental-strip-types --test
+          tests/catalog-editor.test.cjs tests/workflows.test.mjs
+          tests/cache-policy.test.ts
+      - name: Production build (admin and provider portal)
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+      - name: Initialize fresh database and run migrations
+        run: node scripts/prepare-database.cjs
+      - name: Verify repeat startup and migration ledger
+        run: node scripts/prepare-database.cjs
+      - name: PostgreSQL catalog integration tests
+        run: pnpm run test:catalog-editor:integration
+        env:
+          CATALOG_EDITOR_TEST_DATABASE: rwm_catalog_editor_test
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build production image without pushing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: rwm-strapi:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

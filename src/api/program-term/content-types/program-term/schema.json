@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programterm",
+  "info": {
+    "singularName": "program-term",
+    "pluralName": "program-terms",
+    "displayName": "Program term"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "program": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "terms",
+      "required": true
+    },
+    "title": { "type": "string", "required": true, "maxLength": 100 },
+    "start_date_time": { "type": "datetime", "required": true },
+    "end_date_time": { "type": "datetime", "required": true },
+    "duration": {
+      "type": "enumeration",
+      "enum": ["sem", "yr", "sum", "brk", "twowks", "sxwks"],
+      "required": true
+    },
+    "application_deadline": { "type": "datetime" }
+  }
+}

@@ -1,0 +1,1 @@
+export const ARTICLE_LOCATION_DEFAULT_ID = 1;

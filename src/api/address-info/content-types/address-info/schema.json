@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_addressinfo",
+  "info": {
+    "singularName": "address-info",
+    "pluralName": "address-infos",
+    "displayName": "Address info"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "line_one": { "type": "string", "required": true, "default": "", "maxLength": 255 },
+    "line_two": {"type": "string", "default": "", "maxLength": 255},
+    "city": { "type": "string", "required": true, "default": "", "maxLength": 125 },
+    "state": { "type": "string", "required": true, "default": "", "maxLength": 28 },
+    "country": {"type": "string", "default": "", "maxLength": 36},
+    "zip_code": { "type": "string", "required": true, "default": "", "maxLength": 10 },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-sensitive-info.user-sensitive-info",
+      "mappedBy": "location_info",
+      "visible": false
+    }
+  }
+}

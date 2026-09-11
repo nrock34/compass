@@ -1,0 +1,106 @@
+diff --git a/dist/server/index.js b/dist/server/index.js
+index d78591fc0771e893e665f0101067c0ab7669b421..2bd3343b69a73255501aff4eaa8f7088aa4a83f5 100644
+--- a/dist/server/index.js
++++ b/dist/server/index.js
+@@ -523,6 +523,17 @@ function getRootFieldsFromQuery(query) {
+   }
+   return fields;
+ }
++const responseHasGraphqlErrors = (body) => {
++  let value = body;
++  if (typeof value === "string") {
++    try {
++      value = JSON.parse(value);
++    } catch {
++      return false;
++    }
++  }
++  return Boolean(value && typeof value === "object" && Array.isArray(value.errors) && value.errors.length > 0);
++};
+ const middleware = async (ctx, next) => {
+   const { url, method } = ctx.request;
+   if (!url.startsWith(strapi.plugin("graphql")?.config("endpoint", "/graphql"))) {
+@@ -612,7 +623,7 @@ const middleware = async (ctx, next) => {
+     return;
+   }
+   await next();
+-  const shouldCache = (ctx.method === "POST" || ctx.method === "GET") && ctx.status === 200 && url.startsWith(strapi.plugin("graphql")?.config("endpoint", "/graphql"));
++  const shouldCache = (ctx.method === "POST" || ctx.method === "GET") && ctx.status === 200 && url.startsWith(strapi.plugin("graphql")?.config("endpoint", "/graphql")) && !responseHasGraphqlErrors(ctx.body);
+   if (shouldCache) {
+     loggy.info(`MISS with key: ${key}`);
+     if (corsConfig) applyCorsHeaders(ctx, corsConfig, corsOrigin);
+@@ -714,6 +725,9 @@ const config = {
+     if (typeof config2.ttl !== "number") {
+       throw new Error(`Invalid config: ttl must be a number`);
+     }
++    if (config2.ttlResolver !== void 0 && typeof config2.ttlResolver !== "function") {
++      throw new Error(`Invalid config: ttlResolver must be a function`);
++    }
+     if (typeof config2.size !== "number") {
+       throw new Error(`Invalid config: size must be a number`);
+     }
+@@ -1062,7 +1076,10 @@ class RedisCacheProvider {
+   async set(key, val) {
+     if (!this.ready) return null;
+     try {
+-      const ttlInMs = Number(this.strapi.plugin("strapi-cache").config("ttl"));
++      const defaultTtlInMs = Number(this.strapi.plugin("strapi-cache").config("ttl"));
++      const ttlResolver = this.strapi.plugin("strapi-cache").config("ttlResolver");
++      const resolvedTtlInMs = typeof ttlResolver === "function" ? Number(ttlResolver(key, defaultTtlInMs)) : defaultTtlInMs;
++      const ttlInMs = Number.isFinite(resolvedTtlInMs) && resolvedTtlInMs >= 0 ? resolvedTtlInMs : defaultTtlInMs;
+       const serialized = node_v8.serialize(val);
+       if (ttlInMs > 0) {
+         await this.client.set(key, serialized, "PX", ttlInMs);
+diff --git a/dist/server/index.mjs b/dist/server/index.mjs
+index 4d16af41c246a2b834d8b8c0d06773a5ae0a46a5..6eb14910a653be6b76b88582425502a50b4e21f2 100644
+--- a/dist/server/index.mjs
++++ b/dist/server/index.mjs
+@@ -519,6 +519,17 @@ function getRootFieldsFromQuery(query) {
+   }
+   return fields;
+ }
++const responseHasGraphqlErrors = (body) => {
++  let value = body;
++  if (typeof value === "string") {
++    try {
++      value = JSON.parse(value);
++    } catch {
++      return false;
++    }
++  }
++  return Boolean(value && typeof value === "object" && Array.isArray(value.errors) && value.errors.length > 0);
++};
+ const middleware = async (ctx, next) => {
+   const { url, method } = ctx.request;
+   if (!url.startsWith(strapi.plugin("graphql")?.config("endpoint", "/graphql"))) {
+@@ -608,7 +619,7 @@ const middleware = async (ctx, next) => {
+     return;
+   }
+   await next();
+-  const shouldCache = (ctx.method === "POST" || ctx.method === "GET") && ctx.status === 200 && url.startsWith(strapi.plugin("graphql")?.config("endpoint", "/graphql"));
++  const shouldCache = (ctx.method === "POST" || ctx.method === "GET") && ctx.status === 200 && url.startsWith(strapi.plugin("graphql")?.config("endpoint", "/graphql")) && !responseHasGraphqlErrors(ctx.body);
+   if (shouldCache) {
+     loggy.info(`MISS with key: ${key}`);
+     if (corsConfig) applyCorsHeaders(ctx, corsConfig, corsOrigin);
+@@ -710,6 +721,9 @@ const config = {
+     if (typeof config2.ttl !== "number") {
+       throw new Error(`Invalid config: ttl must be a number`);
+     }
++    if (config2.ttlResolver !== void 0 && typeof config2.ttlResolver !== "function") {
++      throw new Error(`Invalid config: ttlResolver must be a function`);
++    }
+     if (typeof config2.size !== "number") {
+       throw new Error(`Invalid config: size must be a number`);
+     }
+@@ -1058,7 +1072,10 @@ class RedisCacheProvider {
+   async set(key, val) {
+     if (!this.ready) return null;
+     try {
+-      const ttlInMs = Number(this.strapi.plugin("strapi-cache").config("ttl"));
++      const defaultTtlInMs = Number(this.strapi.plugin("strapi-cache").config("ttl"));
++      const ttlResolver = this.strapi.plugin("strapi-cache").config("ttlResolver");
++      const resolvedTtlInMs = typeof ttlResolver === "function" ? Number(ttlResolver(key, defaultTtlInMs)) : defaultTtlInMs;
++      const ttlInMs = Number.isFinite(resolvedTtlInMs) && resolvedTtlInMs >= 0 ? resolvedTtlInMs : defaultTtlInMs;
+       const serialized = serialize(val);
+       if (ttlInMs > 0) {
+         await this.client.set(key, serialized, "PX", ttlInMs);

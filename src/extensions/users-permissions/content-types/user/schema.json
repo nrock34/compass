@@ -1,0 +1,168 @@
+{
+  "attributes": {
+    "first_name": { "type": "string", "default": "", "maxLength": 150 },
+    "last_name": { "type": "string", "default": "", "maxLength": 150 },
+    "username": {
+      "type": "string",
+      "minLength": 3,
+      "unique": true,
+      "configurable": false,
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "minLength": 6,
+      "configurable": false,
+      "required": true
+    },
+    "provider": {
+      "type": "string",
+      "configurable": false
+    },
+    "password": {
+      "type": "password",
+      "minLength": 6,
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
+    "resetPasswordToken": {
+      "type": "string",
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
+    "confirmationToken": {
+      "type": "string",
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
+    "confirmed": {
+      "type": "boolean",
+      "default": false,
+      "configurable": false
+    },
+    "blocked": {
+      "type": "boolean",
+      "default": false,
+      "configurable": false
+    },
+    "role": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.role",
+      "inversedBy": "users",
+      "configurable": false
+    },
+    "locale": {
+      "type": "string",
+      "default": "en",
+      "maxLength": 35
+    },
+    "timezone": {
+      "type": "string",
+      "default": "UTC",
+      "maxLength": 63
+    },
+    "deletion_requested_at": {
+      "type": "datetime",
+      "private": true
+    },
+    "anonymized_at": {
+      "type": "datetime",
+      "private": true
+    },
+    "public_author": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::author.author",
+      "mappedBy": "associated_user"
+    },
+    "owned_education": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-education-info.user-education-info",
+      "mappedBy": "user"
+    },
+    "owned_int_education": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-global-education-info.user-global-education-info",
+      "mappedBy": "user"
+    },
+    "owned_global_background": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::global-background.global-background",
+      "mappedBy": "user"
+    },
+    "owned_profile": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-profile-info.user-profile-info",
+      "mappedBy": "user"
+    },
+    "owned_sensitive_info": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-sensitive-info.user-sensitive-info",
+      "mappedBy": "user"
+    },
+    "saved_items": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-saved-item.user-saved-item",
+      "mappedBy": "user"
+    },
+    "saved_programs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::saved-program.saved-program",
+      "mappedBy": "user",
+      "visible": false
+    },
+    "saved_scholarships": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::saved-scholarship.saved-scholarship",
+      "mappedBy": "user",
+      "visible": false
+    },
+    "saved_postcards": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::saved-postcard.saved-postcard",
+      "mappedBy": "user",
+      "visible": false
+    },
+    "saved_resources": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::saved-resource.saved-resource",
+      "mappedBy": "user",
+      "visible": false
+    },
+    "tracked_applications": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tracked-application.tracked-application",
+      "mappedBy": "user",
+      "visible": false
+    },
+    "activities": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::user-profile-activity.user-profile-activity",
+      "mappedBy": "user",
+      "visible": false
+    },
+    "editorial_assets": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::editorial-asset.editorial-asset",
+      "mappedBy": "uploaded_by",
+      "visible": false
+    }
+  }
+}

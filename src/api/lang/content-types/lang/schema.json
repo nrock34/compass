@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "siteconfig_lang",
+  "info": {
+    "singularName": "lang",
+    "pluralName": "langs",
+    "displayName": "Lang"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "code": { "type": "string", "required": true, "unique": true, "maxLength": 35 },
+    "name": { "type": "string", "required": true, "maxLength": 80 },
+    "uistringtranslation_set": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ui-string-translation.ui-string-translation",
+      "mappedBy": "language",
+      "visible": false
+    }
+  }
+}

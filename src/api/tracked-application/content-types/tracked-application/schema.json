@@ -1,0 +1,66 @@
+{
+  "kind": "collectionType",
+  "collectionName": "journeys_trackedapplication",
+  "info": {
+    "singularName": "tracked-application",
+    "pluralName": "tracked-applications",
+    "displayName": "Tracked application"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "tracked_applications",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["scholarship", "program", "ext"],
+      "required": true
+    },
+    "for_scholarship": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::scholarship.scholarship",
+      "inversedBy": "user_apps"
+    },
+    "for_program": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "user_apps"
+    },
+    "for_external": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::external-tracked-application.external-tracked-application",
+      "inversedBy": "user_apps"
+    },
+    "submitted": {"type": "boolean", "required": true, "default": false, "visible": false},
+    "progress": {"type": "integer", "required": true, "default": 0, "min": 0, "max": 100, "visible": false},
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "not-started",
+        "writing-statements",
+        "in-progress",
+        "reviewing",
+        "completed",
+        "submitted"
+      ],
+      "default": "not-started",
+      "required": true,
+      "visible": false
+    },
+    "submission_on": {"type": "date", "visible": false},
+    "tracked_since": {"type": "date", "required": true, "visible": false}
+  }
+}

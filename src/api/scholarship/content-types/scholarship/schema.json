@@ -1,0 +1,97 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_scholarship",
+  "info": {
+    "singularName": "scholarship",
+    "pluralName": "scholarships",
+    "displayName": "Scholarship"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": { "type": "string", "required": true, "maxLength": 255 },
+    "summary": { "type": "string", "required": true, "default": "", "maxLength": 255 },
+    "description": { "type": "text", "required": true, "default": "", "maxLength": 1024 },
+    "categories": { "type": "json", "required": true, "default": [] },
+    "provider": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::provider.provider",
+      "inversedBy": "scholarships",
+      "required": true
+    },
+    "link": {"type": "string", "maxLength": 200},
+    "lower_bound": {
+      "type": "decimal",
+      "required": true,
+      "column": { "type": "decimal", "args": [12, 2] }
+    },
+    "upper_bound": {
+      "type": "decimal",
+      "column": { "type": "decimal", "args": [12, 2] }
+    },
+    "requirements": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "api::scholarship-requirement.scholarship-requirement",
+      "inversedBy": "scholarship"
+    },
+    "benefits": { "type": "json", "required": true, "default": [] },
+    "deadline": { "type": "date", "required": true },
+    "status": {
+      "type": "enumeration",
+      "enum": ["open", "closed", "upcoming"],
+      "required": true,
+      "default": "upcoming"
+    },
+    "featured": { "type": "boolean", "required": true, "default": false },
+    "rating": {
+      "type": "decimal",
+      "required": true,
+      "default": 5,
+      "column": { "type": "decimal", "args": [3, 2] }
+    },
+    "image": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::catalog-asset.catalog-asset",
+      "inversedBy": "scholarship_images"
+    },
+    "gallery": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::catalog-asset.catalog-asset",
+      "inversedBy": "scholarship_galleries"
+    },
+    "events": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::scholarship-event.scholarship-event",
+      "mappedBy": "scholarship"
+    },
+    "application_steps": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::scholarship-application-process-step.scholarship-application-process-step",
+      "mappedBy": "scholarship"
+    },
+    "user_apps": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tracked-application.tracked-application",
+      "mappedBy": "for_scholarship",
+      "visible": false
+    },
+    "saved_by_users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::saved-scholarship.saved-scholarship",
+      "mappedBy": "scholarship",
+      "visible": false
+    }
+  }
+}

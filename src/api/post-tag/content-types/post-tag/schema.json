@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "community_posttag",
+  "info": {
+    "singularName": "post-tag",
+    "pluralName": "post-tags",
+    "displayName": "Post tag"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": { "type": "string", "required": true, "unique": true, "maxLength": 48 },
+    "posts": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::post.post",
+      "mappedBy": "tags",
+      "visible": false
+    }
+  }
+}

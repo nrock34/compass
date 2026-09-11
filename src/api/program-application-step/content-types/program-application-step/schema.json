@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programapplicationstep",
+  "info": {
+    "singularName": "program-application-step",
+    "pluralName": "program-application-steps",
+    "displayName": "Program application step"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "step": { "type": "integer", "required": true, "min": 0, "max": 32767 },
+    "title": { "type": "string", "required": true, "maxLength": 30 },
+    "description": { "type": "text", "required": true, "maxLength": 300 },
+    "deadline": { "type": "date", "required": true },
+    "program": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "application_steps",
+      "required": true
+    }
+  }
+}

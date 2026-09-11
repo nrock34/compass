@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_badge",
+  "info": {
+    "singularName": "badge",
+    "pluralName": "badges",
+    "displayName": "Badge"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": { "type": "string", "required": true, "unique": true, "maxLength": 80 },
+    "description": { "type": "text", "required": true, "default": "A badge", "maxLength": 300 },
+    "color": { "type": "string", "required": true, "default": "#A776FC", "maxLength": 40 },
+    "points": { "type": "integer" },
+    "userbadge_set": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::user-badge.user-badge",
+      "mappedBy": "badge",
+      "visible": false
+    }
+  }
+}

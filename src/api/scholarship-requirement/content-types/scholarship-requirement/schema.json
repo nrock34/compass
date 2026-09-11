@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_scholarshiprequirements",
+  "info": {
+    "singularName": "scholarship-requirement",
+    "pluralName": "scholarship-requirements",
+    "displayName": "Scholarship requirements"
+  },
+  "options": { "draftAndPublish": false },
+  "attributes": {
+    "eligibility": { "type": "string", "required": true, "maxLength": 300 },
+    "field": { "type": "string", "maxLength": 64 },
+    "grad_year": {
+      "type": "enumeration",
+      "enum": ["fr", "sp", "jn", "sn", "gr", "al", "n/a"],
+      "required": true,
+      "default": "n/a"
+    },
+    "study_country": { "type": "string", "maxLength": 125 },
+    "scholarship": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::scholarship.scholarship",
+      "mappedBy": "requirements",
+      "visible": false
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "catalog_programprovider",
+  "info": {
+    "singularName": "program-provider",
+    "pluralName": "program-providers",
+    "displayName": "Program provider"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "program": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::program.program",
+      "inversedBy": "provider_links",
+      "required": true
+    },
+    "provider": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::provider.provider",
+      "inversedBy": "program_links",
+      "required": true
+    },
+    "relationship_type": {
+      "type": "enumeration",
+      "enum": ["owner", "partner", "external"],
+      "required": true
+    },
+    "is_main": { "type": "boolean", "required": true, "default": false }
+  }
+}

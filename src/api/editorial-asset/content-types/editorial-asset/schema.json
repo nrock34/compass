@@ -1,0 +1,91 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_editorialasset",
+  "info": {
+    "singularName": "editorial-asset",
+    "pluralName": "editorial-assets",
+    "displayName": "Editorial Asset"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "object_key": { "type": "string", "required": true, "unique": true, "maxLength": 512 },
+    "public_url": { "type": "string", "required": true, "maxLength": 2048 },
+    "original_filename": { "type": "string", "required": true, "maxLength": 255 },
+    "mime_type": { "type": "string", "required": true, "maxLength": 127 },
+    "byte_size": { "type": "biginteger", "min": 0 },
+    "checksum": {"type": "string", "maxLength": 128},
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "ready",
+        "failed"
+      ],
+      "default": "pending",
+      "required": true,
+      "visible": false
+    },
+    "width": { "type": "integer", "min": 0 },
+    "height": { "type": "integer", "min": 0 },
+    "alt_text": {"type": "string", "maxLength": 255},
+    "caption": {"type": "text"},
+    "rights": {"type": "string", "maxLength": 255},
+    "focal_point": { "type": "json" },
+    "source": { "type": "string", "required": true, "default": "django", "maxLength": 32 },
+    "uploaded_by": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "editorial_assets"
+    },
+    "ready_at": {"type": "datetime", "visible": false},
+    "failed_at": {"type": "datetime", "visible": false},
+    "publication_status": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "review",
+        "scheduled",
+        "published",
+        "archived"
+      ],
+      "default": "draft",
+      "required": true,
+      "visible": false
+    },
+    "reviewed_at": {"type": "datetime", "visible": false},
+    "scheduled_at": {"type": "datetime", "visible": false},
+    "archived_at": {"type": "datetime", "visible": false},
+    "placements": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::editorial-asset-placement.editorial-asset-placement",
+      "mappedBy": "asset",
+      "visible": false
+    },
+    "articles": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::article.article",
+      "mappedBy": "gallery",
+      "visible": false
+    },
+    "banner_articles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::article.article",
+      "mappedBy": "banner_img",
+      "visible": false
+    },
+    "updates": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::update.update",
+      "mappedBy": "image",
+      "visible": false
+    }
+  }
+}

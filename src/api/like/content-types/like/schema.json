@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "community_like",
+  "info": {
+    "singularName": "like",
+    "pluralName": "likes",
+    "displayName": "Like"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "content-manager": { "visible": false }
+  },
+  "attributes": {
+    "author": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::author.author",
+      "inversedBy": "likes"
+    },
+    "subject": {
+      "type": "relation",
+      "relation": "morphToOne",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_userprofileactivity",
+  "info": {
+    "singularName": "user-profile-activity",
+    "pluralName": "user-profile-activities",
+    "displayName": "User profile activity"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "content-manager": { "visible": false }
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "activities"
+    },
+    "timestamp": {"type": "datetime", "required": true, "visible": false},
+    "action": {
+      "type": "enumeration",
+      "enum": ["posted", "commented-on", "updated", "submitted", "liked", "switched-program-to"],
+      "required": true
+    },
+    "description": { "type": "text" },
+    "subject": {
+      "type": "relation",
+      "relation": "morphToOne",
+      "required": true
+    }
+  }
+}

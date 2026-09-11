@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "members_usereducationinfo",
+  "info": {
+    "singularName": "user-education-info",
+    "pluralName": "user-education-infos",
+    "displayName": "User education info"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "useJoinTable": false,
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "owned_education"
+    },
+    "student_level": {"type": "string", "default": "", "maxLength": 32},
+    "university": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "useJoinTable": false,
+      "target": "api::university.university",
+      "inversedBy": "students",
+      "required": true
+    },
+    "major": { "type": "text", "required": true, "default": "N/A" },
+    "year": { "type": "integer", "required": true, "default": 2025 }
+  }
+}
