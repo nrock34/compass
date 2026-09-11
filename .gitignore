@@ -1,0 +1,27 @@
+.DS_Store
+.env
+.tmp/
+.cache/
+.strapi/
+.strapi-updater.json
+dist/
+build/
+node_modules/
+coverage/
+*.log
+*.tsbuildinfo
+public/uploads/*
+!public/uploads/.gitkeep
+exports/
+public/provider/
+.playwright-cli/
+output/playwright/
+
+# Local tooling and environment files
+.env.*
+!.env.example
+.ruff_cache/
+
+# Documentation stays local
+docs/
+*.md
