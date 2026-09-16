@@ -12,6 +12,8 @@ module.exports = () => {
   let strapi;
   let service;
   const enabled = () => strapi.config.get('plugin::catalog-editor.enabledPortal', false);
+  const portalOrigin = () => strapi.config.get('plugin::catalog-editor.publicOrigin', '');
+  const separatePortalHost = () => Boolean(portalOrigin() && new URL(portalOrigin()).host !== new URL(strapi.config.get('server.url')).host);
   const buckets = new Map();
   function rateLimit(key, limit) {
     const now = Date.now();
@@ -199,7 +201,7 @@ module.exports = () => {
           await strapi.plugin('users-permissions').service('user').edit(user.id, { resetPasswordToken: token });
           const origin = strapi.config.get('plugin::catalog-editor.publicOrigin') || strapi.config.get('server.absoluteUrl');
           if (!/^https?:\/\//.test(origin || '')) fail(503, 'Password recovery is not configured. Please contact your RWM administrator.');
-          await strapi.plugin('email').service('email').send({ to: email, subject: 'Reset your RWM provider password', text: `Reset your password: ${origin.replace(/\/$/, '')}/provider/reset?code=${token}\n\nIf you did not request this, ignore this email.` });
+          await strapi.plugin('email').service('email').send({ to: email, subject: 'Reset your RWM provider password', text: `Reset your password: ${origin.replace(/\/$/, '')}${separatePortalHost() ? '' : '/provider'}/reset?code=${token}\n\nIf you did not request this, ignore this email.` });
         }
         ctx.body = { ok: true };
       } catch (error) { ctx.status = error.status || 400; ctx.body = { error: { message: error.status ? error.message : 'Unable to complete this request. Please try again or contact RWM.' } }; }
@@ -218,7 +220,22 @@ module.exports = () => {
       });
       // Mounted separately from the admin SPA: no admin bundle, sidebar, or login chrome.
       strapi.server.use(async (ctx, next) => {
-        if (!/^\/provider(?:\/|$)/.test(ctx.path) || !['GET', 'HEAD'].includes(ctx.method)) return next();
+        const dedicatedHost = separatePortalHost();
+        const providerHost = dedicatedHost && ctx.host === new URL(portalOrigin()).host;
+        const providerApi = /^\/api\/catalog-editor(?:\/|$)/.test(ctx.path);
+        if (dedicatedHost && providerApi && !providerHost) { ctx.status = 404; return; }
+        if (providerHost) {
+          if (ctx.path === '/_health' || providerApi) return next();
+          if (!['GET', 'HEAD'].includes(ctx.method)) { ctx.status = 404; return; }
+          if (/^\/provider(?:\/|$)/.test(ctx.path) && !ctx.path.startsWith('/provider/assets/')) {
+            ctx.redirect((ctx.path.replace(/^\/provider/, '') || '/') + (ctx.querystring ? '?' + ctx.querystring : ''));
+            return;
+          }
+          if (!/^(?:\/|\/reset|\/drafts\/[^/]+|\/provider\/assets\/[^/]+)$/.test(ctx.path)) { ctx.status = 404; return; }
+        } else {
+          if (!/^\/provider(?:\/|$)/.test(ctx.path) || !['GET', 'HEAD'].includes(ctx.method)) return next();
+          if (dedicatedHost) { ctx.status = 404; return; }
+        }
         if (!enabled()) { ctx.status = 404; return; }
         const root = path.join(strapi.dirs.app.root, 'public', 'provider');
         const asset = /^\/provider\/assets\/([a-zA-Z0-9._-]+)$/.exec(ctx.path);

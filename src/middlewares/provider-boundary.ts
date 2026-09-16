@@ -7,7 +7,7 @@ export default (_config: unknown, { strapi }: { strapi: Core.Strapi }) => {
     ctx.status = 403;
     ctx.remove('Set-Cookie');
     ctx.set('Cache-Control', 'no-store');
-    ctx.body = { error: { status: 403, message: 'This account can only sign in to the provider portal at /provider.' } };
+    ctx.body = { error: { status: 403, message: 'This account can only sign in to the provider portal.' } };
   };
   return async (ctx: any, next: () => Promise<unknown>) => {
     if (/^\/api\/catalog-editor(?:\/|$)/.test(ctx.path)) return next();

@@ -21,6 +21,9 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     autoDeployTrigger: checksPass
+    domains:
+      - strapi.romewithme.com
+      - providers.romewithme.com
     healthCheckPath: /_health
     preDeployCommand: node scripts/prepare-database.cjs
     envVars:
@@ -32,8 +35,10 @@ services:
         value: "10000"
       - key: IS_PROXIED
         value: "true"
+      - key: ADMIN_URL
+        value: /
       - key: PUBLIC_URL
-        sync: false
+        value: https://strapi.romewithme.com
       - key: CORS_ORIGIN
         sync: false
       - key: APP_KEYS
@@ -70,9 +75,9 @@ services:
       - key: UP_COOKIE_SAME_SITE
         value: lax
       - key: CATALOG_EDITOR_ENABLED
-        value: "false"
+        value: "true"
       - key: CATALOG_EDITOR_PUBLIC_ORIGIN
-        sync: false
+        value: https://providers.romewithme.com
       # Persistent uploads use R2, not the container's ephemeral filesystem.
       - key: R2_ACCOUNT_ID
         sync: false
