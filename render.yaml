@@ -16,7 +16,7 @@ services:
   - type: web
     name: rwm-strapi
     runtime: docker
-    plan: standard
+    plan: starter
     numInstances: 1
     dockerfilePath: ./Dockerfile
     dockerContext: .

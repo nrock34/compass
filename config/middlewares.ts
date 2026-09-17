@@ -23,6 +23,7 @@ const config: Core.Config.Middlewares = [
   'strapi::query',
   'strapi::body',
   'global::provider-boundary',
+  'global::admin-root',
   'global::cache-safety',
   'strapi::session',
   'strapi::favicon',

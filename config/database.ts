@@ -4,6 +4,10 @@ import { isDatabaseClientKind } from '@strapi/database';
 
 const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Database => {
   const client = env('DATABASE_CLIENT', 'postgres');
+  const databaseUrl = env('DATABASE_URL')?.trim();
+  if (env('RENDER') === 'true' && client === 'postgres' && !databaseUrl) {
+    throw new Error('DATABASE_URL is missing on Render. Sync the Blueprint database connection before starting Strapi.');
+  }
 
   if (!isDatabaseClientKind(client)) {
     throw new Error(`Unsupported DATABASE_CLIENT: ${client}.`);
@@ -26,7 +30,7 @@ const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Database 
     postgres: {
       client: 'postgres',
       connection: {
-        connectionString: env('DATABASE_URL'),
+        connectionString: databaseUrl,
         host: env('DATABASE_HOST', 'localhost'),
         port: env.int('DATABASE_PORT', 5432),
         database: env('DATABASE_NAME', 'rwm_strapi'),

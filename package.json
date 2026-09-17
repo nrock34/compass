@@ -6,7 +6,7 @@
   "scripts": {
     "console": "strapi console",
     "develop": "pnpm run build:portal && strapi develop",
-    "start": "strapi start",
+    "start": "node scripts/start.cjs",
     "strapi": "strapi",
     "build": "pnpm run build:portal && strapi build",
     "build:portal": "node scripts/build-provider-portal.mjs",
