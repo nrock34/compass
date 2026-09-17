@@ -7,6 +7,8 @@ COPY patches ./patches
 RUN corepack enable && pnpm install --frozen-lockfile
 
 COPY . .
+ARG ADMIN_URL=/
+ENV ADMIN_URL=${ADMIN_URL}
 RUN pnpm run build
 RUN pnpm prune --prod
 
