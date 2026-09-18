@@ -227,21 +227,32 @@ module.exports = () => {
         if (providerHost) {
           if (ctx.path === '/_health' || providerApi) return next();
           if (!['GET', 'HEAD'].includes(ctx.method)) { ctx.status = 404; return; }
-          if (/^\/provider(?:\/|$)/.test(ctx.path) && !ctx.path.startsWith('/provider/assets/')) {
-            ctx.redirect((ctx.path.replace(/^\/provider/, '') || '/') + (ctx.querystring ? '?' + ctx.querystring : ''));
+          const legacyPage = /^\/provider(?:\/(reset|drafts\/[a-zA-Z0-9_-]+))?\/?$/.exec(ctx.path);
+          if (legacyPage) {
+            ctx.redirect('/' + (legacyPage[1] || '') + (ctx.querystring ? '?' + ctx.querystring : ''));
             return;
           }
-          if (!/^(?:\/|\/reset|\/drafts\/[^/]+|\/provider\/assets\/[^/]+)$/.test(ctx.path)) { ctx.status = 404; return; }
         } else {
           if (!/^\/provider(?:\/|$)/.test(ctx.path) || !['GET', 'HEAD'].includes(ctx.method)) return next();
           if (dedicatedHost) { ctx.status = 404; return; }
         }
         if (!enabled()) { ctx.status = 404; return; }
+        const pagePath = providerHost ? ctx.path : ctx.path.slice('/provider'.length) || '/';
+        const page = /^(?:\/|\/reset\/?|\/drafts\/[a-zA-Z0-9_-]+\/?)$/.test(pagePath);
+        const asset = /^\/provider\/assets\/([a-zA-Z0-9_-][a-zA-Z0-9._-]*\.[a-zA-Z0-9]+)$/.exec(ctx.path);
+        if (!page && !asset) { ctx.status = 404; return; }
+        if (page && ctx.path.endsWith('/') && ctx.path !== '/') {
+          ctx.redirect(ctx.path.slice(0, -1) + (ctx.querystring ? '?' + ctx.querystring : ''));
+          return;
+        }
         const root = path.join(strapi.dirs.app.root, 'public', 'provider');
-        const asset = /^\/provider\/assets\/([a-zA-Z0-9._-]+)$/.exec(ctx.path);
         const file = asset ? path.join(root, 'assets', asset[1]) : path.join(root, 'index.html');
-        if (ctx.path.startsWith('/provider/assets/') && !asset) { ctx.status = 404; return; }
-        if (!fs.existsSync(file)) { ctx.status = 503; ctx.body = 'Provider portal is being prepared. Please try again later.'; return; }
+        if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+          ctx.status = asset ? 404 : 503;
+          if (!asset) ctx.body = 'Provider portal is being prepared. Please try again later.';
+          return;
+        }
+        ctx.state.providerPortal = true;
         // Let the application's security middleware set its response headers.
         await next();
         ctx.status = 200; ctx.type = path.extname(file); ctx.set('Cache-Control', asset ? 'public, max-age=31536000, immutable' : 'no-store'); ctx.body = fs.createReadStream(file);

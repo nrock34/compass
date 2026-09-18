@@ -4,6 +4,8 @@ import type { Core } from '@strapi/strapi';
 
 export default (_config: unknown, { strapi }: { strapi: Core.Strapi }) => {
   return async (ctx: any, next: () => Promise<unknown>) => {
+    if (ctx.state.providerPortal) return;
+
     if (strapi.config.get('admin.path') !== '/' || !['GET', 'HEAD'].includes(ctx.method)) {
       return next();
     }
@@ -21,11 +23,10 @@ export default (_config: unknown, { strapi }: { strapi: Core.Strapi }) => {
       }
     }
 
-    if (ctx.path !== '/') {
-      await next();
-      if (ctx.status !== 404 || path.extname(ctx.path) ||
-          /^\/(?:api|admin|graphql|uploads|provider|_health)(?:\/|$)/.test(ctx.path)) return;
-    }
+    ctx.vary('Accept');
+    const pageRequest = ctx.get('accept').includes('text/html') &&
+      /^\/(?:auth|usecase|me|settings|plugins|content-manager|content-type-builder|marketplace)(?:\/|$)/.test(ctx.path);
+    if (ctx.path !== '/' && !pageRequest) return next();
 
     const file = path.join(build, 'index.html');
     if (!existsSync(file)) {
