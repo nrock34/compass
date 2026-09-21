@@ -161,7 +161,8 @@ test('catalog editor PostgreSQL integration', { skip: !enabled }, async t => {
     assert(!(await spec.json()).data.fields.some(f => f.name === 'rating'));
     assert.equal((await fetch(`${base}/catalog-editor/me`, { headers })).status, 403);
     assert.equal((await fetch(`${base}/api/catalog-editor/entries?organization=${other.documentId}`, { headers })).status, 403);
-    const portal = await fetch(`${base}/provider/deep/link`);
+    const draft = await service.create(providerActor, { kind: 'program', organization: org.documentId });
+    const portal = await fetch(`${base}/provider/drafts/${draft.documentId}`);
     assert.equal(portal.status, 200); assert((await portal.text()).includes('RWM Provider Portal'));
     const adminRole = await app.admin.services.role.getSuperAdmin();
     const admin = await app.admin.services.user.create({ email: `admin-${suffix}@example.test`, firstname: 'Catalog', lastname: 'Tester', password: fixturePassword, isActive: true, roles: [adminRole.id] });
